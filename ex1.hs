@@ -4,10 +4,8 @@
 splitSort :: Ord a => [a] -> [[a]] 
 splitSort ns = [[]]
 
-(++) :: String -> String -> String
-
 
 helperFunc x:nx = compare x head(nx) helperFunc(tail nx)
 
-map compare (x:xs) 
-fold etc
+-- map compare (x:xs) 
+-- fold etc
