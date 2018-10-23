@@ -1,3 +1,5 @@
+import Data.List (maximumBy)
+import Data.Function (on)
 lcs :: Ord a => [a] -> [a] -> [a]
 lcs xs ys = snd $ lcs' xs ys
 
@@ -11,8 +13,8 @@ lcs' (x:xs) (y:ys)
 lcs' [] _ = (0, [])
 lcs' _ [] = (0, [])
 
-{-- 
-What is r1 and r2, l1 and l2 in this case ? 
+{--
+What is r1 and r2, l1 and l2 in this case ?
 r1 and r2 with @ is the result of the function that have first index is l1 or l2
 
 good example, remember this
@@ -32,14 +34,13 @@ c = [1,2,3]
 -- longest common sub-list of a finite list of finite list
 
 --helper function
-helper :: [[a]] -> [[a]]
-helper xs = [lcs lists1 lists2 | lists1 <- xs, lists2 <- xs]
+helper :: Ord a => [[a]] -> [[a]]
+helper xs = [lcs lists1 lists2 | lists1 <- xs, lists2 <- xs, lists1/=lists2]
 
-longestCommonSubList :: Eq a => [[a]] -> [a]
-longestCommonSubList [[]] = []
-longestCommonSubList xs = head $ (maximumBy (comparing length)) $ helper xs
+-- longestCommonSubList :: Eq a => [[a]] -> [a]
+-- longestCommonSubList [[]] = []
+-- longestCommonSubList xs =  maximumBy (compare `on` length)  (helper xs)
 
+test = [[1,2,3], [0,1,3], [1,3,4]]
 
-
-
-
+test2 = maximumBy (compare `on` length)  (helper test)
