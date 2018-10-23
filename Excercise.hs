@@ -15,16 +15,43 @@ module Exercises (splitSort, longestCommonSubList,
     findBusyBeavers, Rectangle (Rectangle), simplifyRectangleList, drawEllipse, 
     extractMessage, differentStream, unPairAndApply, isShellTreeSum) where
      
+
+--HELPER function
+
+positions :: Eq a => a -> [a] -> [Int]
+positions x xs = [ index | (y, index) <- zip xs [0..], x==y]
+
 -- Exercise 1
 -- split a given list into sub-lists 
 -- each of these must be strictly ascending, descending, or equal
+orderList :: Ord a => [(a,a)] -> [Ordering]
+orderList a = [ compare x y | (x,y) <- a  ]
+
+helperFunc :: [(Ordering,Ordering)] -> [Bool]
+helperFunc a = [ (x == y) | (x,y) <- a]
+
+{--
 splitSort :: Ord a => [a] -> [[a]] 
-splitSort ns = [[]]
+splitSort ns = splitPlaces (positions False (list2 list(ns))) ns
+    where list ns = positions False (helperFunc (orderList ns),
+          list2 ns = [ x+1 | x <- ns]
+
+-- NEED to fix the syntax of where
+--}
+    
+
+
+
+
+
+
 
 -- Exercise 2
 -- longest common sub-list of a finite list of finite list
+
 longestCommonSubList :: Eq a => [[a]] -> [a]
 longestCommonSubList xs = []
+
 
 -- Exercise 3
 -- check whether the given results are sufficient to pass the year 
@@ -32,6 +59,10 @@ longestCommonSubList xs = []
 data ModuleResult = ModuleResult { credit :: Float, mark :: Int} deriving Show
 canProgress :: [ModuleResult] -> Bool
 canProgress ms = False
+
+checkModule :: ModuleResult -> Bool
+checkModule [] = False
+checkModule x | 
 
 -- Exercise 4
 -- compute the degree classification associate with 3 or 4 year's worth of results
