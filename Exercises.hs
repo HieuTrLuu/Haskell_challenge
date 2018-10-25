@@ -4,75 +4,44 @@
 -- Submit your code using your tested version of this file
 --
 -- NOTE THAT NO EXTERNAL MODULES MAY BE USED IN SOLVING THESE EXERCISES AND
--- THAT YOU MAY NOT CHANGE THE FUNCTION SIGNATURES NOR TYPE DEFINITIONS 
+-- THAT YOU MAY NOT CHANGE THE FUNCTION SIGNATURES NOR TYPE DEFINITIONS
 
 -- This module statement makes public only the specified functions and types
 -- please do not change these lines either
-module Exercises (splitSort, longestCommonSubList, 
-    ModuleResult (ModuleResult), canProgress, DegreeClass (First, UpperSecond, 
-    LowerSecond, Third), classify, hillClimb, nearestRoot, Instruction (Duplicate, 
-    Pop, Add, Multiply), executeInstructionSequence, optimalSequence, 
-    findBusyBeavers, Rectangle (Rectangle), simplifyRectangleList, drawEllipse, 
+module Exercises (splitSort, longestCommonSubList,
+    ModuleResult (ModuleResult), canProgress, DegreeClass (First, UpperSecond,
+    LowerSecond, Third), classify, hillClimb, nearestRoot, Instruction (Duplicate,
+    Pop, Add, Multiply), executeInstructionSequence, optimalSequence,
+    findBusyBeavers, Rectangle (Rectangle), simplifyRectangleList, drawEllipse,
     extractMessage, differentStream, unPairAndApply, isShellTreeSum) where
-     
-
---HELPER function
-
-positions :: Eq a => a -> [a] -> [Int]
-positions x xs = [ index | (y, index) <- zip xs [0..], x==y]
 
 -- Exercise 1
--- split a given list into sub-lists 
+-- split a given list into sub-lists
 -- each of these must be strictly ascending, descending, or equal
-orderList :: Ord a => [(a,a)] -> [Ordering]
-orderList a = [ compare x y | (x,y) <- a  ]
-
-helperFunc :: [(Ordering,Ordering)] -> [Bool]
-helperFunc a = [ (x == y) | (x,y) <- a]
-
-{--
-splitSort :: Ord a => [a] -> [[a]] 
-splitSort ns = splitPlaces (positions False (list2 list(ns))) ns
-    where list ns = positions False (helperFunc (orderList ns),
-          list2 ns = [ x+1 | x <- ns]
-
--- NEED to fix the syntax of where
---}
-    
-
-
-
-
-
-
+splitSort :: Ord a => [a] -> [[a]]
+splitSort ns = [[]]
 
 -- Exercise 2
 -- longest common sub-list of a finite list of finite list
-
 longestCommonSubList :: Eq a => [[a]] -> [a]
 longestCommonSubList xs = []
 
-
 -- Exercise 3
--- check whether the given results are sufficient to pass the year 
+-- check whether the given results are sufficient to pass the year
 -- and progress using the University of Southampton Calendar regulations
 data ModuleResult = ModuleResult { credit :: Float, mark :: Int} deriving Show
 canProgress :: [ModuleResult] -> Bool
 canProgress ms = False
-
-checkModule :: ModuleResult -> Bool
-checkModule [] = False
-checkModule x | 
 
 -- Exercise 4
 -- compute the degree classification associate with 3 or 4 year's worth of results
 -- using the regulations given in the University of Southampton Calendar
 data DegreeClass = First | UpperSecond | LowerSecond | Third deriving (Eq, Show)
 classify :: [[ModuleResult]] -> DegreeClass
-classify ms = Third 
+classify ms = Third
 
 -- Exercise 5
--- search for the local maximum of f nearest x using an 
+-- search for the local maximum of f nearest x using an
 -- approximation margin delta and initial step value s
 hillClimb :: (Float -> Float) -> Float -> Float -> Float -> Float
 hillClimb d x x' eps = 0.0
@@ -88,7 +57,7 @@ executeInstructionSequence ns ins = []
 
 -- Exercise 8
 optimalSequence :: Int -> [Instruction]
-optimalSequence n = [] 
+optimalSequence n = []
 
 -- Exercise 9
 findBusyBeavers :: [Int] -> [[Instruction]]
@@ -111,10 +80,7 @@ extractMessage s = ""
 
 -- Exercise 13
 -- return a stream which is different from all streams of the given stream
--- use Cantor's diagonal method 
--- the first element of the result is 1 more than the first element of the first stream
--- the second element of the result is 1 more than the second element of the first and second streams
--- and so on
+-- you may choose to use Cantor's diagonal method
 differentStream :: [[Int]] -> [Int]
 differentStream ss = []
 

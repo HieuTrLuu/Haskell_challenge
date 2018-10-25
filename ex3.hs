@@ -31,7 +31,8 @@ isQualify result | mark result >= 25 = True
 
 isEnoughCompensate :: Bool -> [ModuleResult] -> Bool
 isEnoughCompensate False [] = False
--- isEnoughCompensate True x:xs |
+isEnoughCompensate True xs | averageMark xs >= 40 = True
+                           | otherwise = False
 
 totalMark :: [ModuleResult] -> Int
 totalMark [] = 0
@@ -43,8 +44,10 @@ averageMark list = (totalMark list ) / (length list)
 
 canProgress :: [ModuleResult] -> Bool
 canProgress [] = False
-canProgress list | isPass == True = True
-                 |
+canProgress list | isPass list == True = True
+                 | isQualify list == False = False
+                 | isEnoughCompensate (isQualify list) list == True = True
+                 | otherwise = False
 
 
 
