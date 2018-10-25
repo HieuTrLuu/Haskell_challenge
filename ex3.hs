@@ -26,27 +26,35 @@ isPass result | mark result >= 40 = True
               | otherwise = False
 
 isQualify :: ModuleResult -> Bool
-isQualify result | mark result >= 25 = True
-                 | otherwise = False
+isQualify result | mark result <= 25 = True
+                  | otherwise = False
+
+yearPass :: [ModuleResult] -> Bool
+yearPass [] = False
+yearPass (x:xs) = (isPass x) && (yearPass xs)
+
+yearQualify :: [ModuleResult] -> Bool
+yearQualify [] = False
+yearQualify (x:xs) = (isQualify x) && (yearQualify xs)
 
 isEnoughCompensate :: Bool -> [ModuleResult] -> Bool
 isEnoughCompensate False [] = False
 isEnoughCompensate True xs | averageMark xs >= 40 = True
                            | otherwise = False
 
-totalMark :: [ModuleResult] -> Int
+totalMark ::[ModuleResult] -> Int
 totalMark [] = 0
 totalMark (x:xs) = mark x + totalMark xs
 
-averageMark :: Num a => [ModuleResult] -> a
+averageMark :: [ModuleResult] -> Int
 averageMark [] = 0
-averageMark list = (totalMark list ) / (length list)
+averageMark list = (totalMark list ) `div` (length list)
 
 canProgress :: [ModuleResult] -> Bool
 canProgress [] = False
-canProgress list | isPass list == True = True
-                 | isQualify list == False = False
-                 | isEnoughCompensate (isQualify list) list == True = True
+canProgress list | yearPass list == True = True
+                 | isEnoughCompensate (yearQualify list) list == True = True
+                 | yearQualify list == False = False
                  | otherwise = False
 
 
