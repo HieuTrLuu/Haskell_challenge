@@ -15,11 +15,13 @@ credit test
 
 data ModuleResult = ModuleResult { credit :: Float, mark :: Int} deriving Show
 
-test = ModuleResult 15 60
+isEnoughCredit :: [ModuleResult] -> Bool
+isEnoughCredit xs = totalcredit >= 60
+ where
+  totalcredit = sum [mark x | x <- xs ]
 
---checkModule :: ModuleResult -> Bool
---checkModule [] = False
--- checkModule x |
+--enoughCredit :: [ModuleResult] -> Bool
+--enoughCredit xs = foldr (+) 0
 
 isPass :: ModuleResult -> Bool
 isPass result | mark result >= 40 = True
@@ -27,10 +29,10 @@ isPass result | mark result >= 40 = True
 
 isQualify :: ModuleResult -> Bool
 isQualify result | mark result <= 25 = True
-                  | otherwise = False
+                 | otherwise = False
 
 yearPass :: [ModuleResult] -> Bool
-yearPass [] = False
+yearPass [] = True
 yearPass (x:xs) = (isPass x) && (yearPass xs)
 
 yearQualify :: [ModuleResult] -> Bool
@@ -39,6 +41,7 @@ yearQualify (x:xs) = (isQualify x) && (yearQualify xs)
 
 isEnoughCompensate :: Bool -> [ModuleResult] -> Bool
 isEnoughCompensate False [] = False
+isEnoughCompensate False xs = False
 isEnoughCompensate True xs | averageMark xs >= 40 = True
                            | otherwise = False
 
@@ -52,14 +55,10 @@ averageMark list = (totalMark list ) `div` (length list)
 
 canProgress :: [ModuleResult] -> Bool
 canProgress [] = False
-canProgress list | yearPass list == True = True
-                 | isEnoughCompensate (yearQualify list) list == True = True
+canProgress list | (yearPass list) && (isEnoughCredit list)  == True = True
+                 | isEnoughCompensate (yearQualify list) list && (isEnoughCredit list) == True = True
                  | yearQualify list == False = False
                  | otherwise = False
-
-
-
-
 
 
 
