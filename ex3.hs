@@ -14,8 +14,6 @@ credit test
 --}
 
 data ModuleResult = ModuleResult { credit :: Float, mark :: Int} deriving Show
-canProgress :: [ModuleResult] -> Bool
-canProgress ms = False
 
 test = ModuleResult 15 60
 
@@ -32,6 +30,31 @@ isQualify result | mark result >= 25 = True
                  | otherwise = False
 
 isEnoughCompensate :: Bool -> [ModuleResult] -> Bool
+isEnoughCompensate False [] = False
+-- isEnoughCompensate True x:xs |
+
+totalMark :: [ModuleResult] -> Int
+totalMark [] = 0
+totalMark (x:xs) = mark x + totalMark xs
+
+averageMark :: Num a => [ModuleResult] -> a
+averageMark [] = 0
+averageMark list = (totalMark list ) / (length list)
+
+canProgress :: [ModuleResult] -> Bool
+canProgress [] = False
+canProgress list | isPass == True = True
+                 |
+
+
+
+
+
+
+
+-- OO helps to reuse type while functional programming even help to reuse behaviour
+
+
 
 
 
