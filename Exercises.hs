@@ -67,15 +67,28 @@ executeInstructionSequence list [] = list
 executeInstructionSequence list (x:xs) = executeInstructionSequence (executeOperations list x) xs
 
 
-
--- executeInstructionSequence ns ins = executeOperations ns i
-
-
-
-
 -- Exercise 8
+log2 :: Int -> Int
+log2 n
+    | n < 1     = error "agument of logarithm must be positive"
+    | otherwise = go 0 1
+      where
+        go exponent prod
+            | prod < n  = go (exponent + 1) (2*prod)
+            | otherwise = exponent
+
+non2 :: Int -> Int
+non2 n | upperBound < lowerBound = upperBound
+       | upperBound > lowerBound = lowerBound
+ where upperBound = 2^(log2 n) - n
+       lowerBound = n - 2^((log2 n) - 1)
+
+
 optimalSequence :: Int -> [Instruction]
-optimalSequence n = []
+optimalSequence 1 = []
+
+
+
 
 -- Exercise 9
 findBusyBeavers :: [Int] -> [[Instruction]]
