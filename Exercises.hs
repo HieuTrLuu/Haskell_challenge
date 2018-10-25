@@ -52,8 +52,19 @@ nearestRoot xs x x' eps = 0.0
 
 -- Exercise 7
 data Instruction = Add | Subtract | Multiply | Duplicate | Pop deriving (Eq, Show)
+
+executeOperations :: [Int] -> Instruction -> Int
+executeOperations [] _ = []
+executeOperations xs Pop = tail xs
+executeOperations xs Add = (head xs + head $ tail xs):(tail $ tail xs)
+executeOperations xs Multiply = (head xs * head $ tail xs):(tail $ tail xs)
+executeOperations xs Duplicate = (head xs) : xs
+
 executeInstructionSequence :: [Int] -> [Instruction] -> [Int]
-executeInstructionSequence ns ins = []
+executeInstructionSequence ns ins = [executeOperations ns i | i<- ins]
+
+
+
 
 -- Exercise 8
 optimalSequence :: Int -> [Instruction]
