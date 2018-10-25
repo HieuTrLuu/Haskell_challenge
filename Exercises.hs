@@ -53,15 +53,22 @@ nearestRoot xs x x' eps = 0.0
 -- Exercise 7
 data Instruction = Add | Subtract | Multiply | Duplicate | Pop deriving (Eq, Show)
 
-executeOperations :: [Int] -> Instruction -> Int
+executeOperations :: [Int] -> Instruction -> [Int]
 executeOperations [] _ = []
-executeOperations xs Pop = tail xs
-executeOperations xs Add = (head xs + head $ tail xs):(tail $ tail xs)
-executeOperations xs Multiply = (head xs * head $ tail xs):(tail $ tail xs)
-executeOperations xs Duplicate = (head xs) : xs
+executeOperations (x:xs) Pop = xs
+executeOperations (x:xs) Add = (x + head xs):(tail xs)
+executeOperations (x:xs) Multiply = (x * head xs):(tail xs)
+executeOperations (x:xs) Duplicate = x:x:xs
+-- TODO: include case of add and multiply when there is only one int in the int list
 
 executeInstructionSequence :: [Int] -> [Instruction] -> [Int]
-executeInstructionSequence ns ins = [executeOperations ns i | i<- ins]
+executeInstructionSequence [] ins = []
+executeInstructionSequence list [] = list
+executeInstructionSequence list (x:xs) = executeInstructionSequence (executeOperations list x) xs
+
+
+
+-- executeInstructionSequence ns ins = executeOperations ns i
 
 
 
