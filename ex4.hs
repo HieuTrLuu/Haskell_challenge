@@ -57,16 +57,23 @@ threeYear = [(ModuleResult 20.0 50), (ModuleResult 20.0 50), (ModuleResult 20.0 
 -- Exercise 4
 -- compute the degree classification associate with 3 or 4 year's worth of results
 -- using the regulations given in the University of Southampton Calendar
+calculateDegree :: [[ModuleResult]] -> Int -> Int
+--calculateDegree (x:xs) 3 = ( (averageMark $ head xs) + (averageMark ( head $ tail xs) * 2) ) `div` 3
+--calculateDegree (x:xs) 4 = ( averageMark $ head xs + averageMark $ head $ tail xs * 2 + averageMark $ head $ tail $ tail xs * 2 ) `div` 5
+calculateDegree (x:xs) 3 =  ((averageMark $ head xs) + (averageMark $ head $ tail xs )* 2) `div` 3
+calculateDegree (x:xs) 4 =  ((averageMark $ head xs) + (averageMark $ head $ tail xs )* 2 + (averageMark $ head $ tail $ tail xs )* 2) `div` 5
+ where
+  yearThree = averageMark $ head $ tail xs
+  yearFour = averageMark $ head $ tail $ tail xs
+
+-- TODO: find out why the where here did not work and refactor the code
+
+
 data DegreeClass = First | UpperSecond | LowerSecond | Third deriving (Eq, Show)
 classify :: [[ModuleResult]] -> DegreeClass
 classify ms | averageMark >= 70 = First
             | averageMark >= 60 = UpperSecond
             | averageMark >= 50 = LowerSecond
             | averageMark >= 40 = Third
- where averageMark = calculateDegree ms (length ms)
-
-calculateDegree :: [[ModuleResult]] -> Int -> Int
-calculateDegree (x:xs) 3 = ((averageMark $ head xs) + (yearThree * 2)) / 3
-calculateDegree (x:xs) 4 = ((averageMark $ head xs) + (yearThree * 2) + (yearFour * 2) )/ 5
- where yearThree = averageMark $ head $ tail xs
-       yearFour = averageMark $ head $ tail $ tail xs
+ where
+   averageMark = calculateDegree ms (length ms)
