@@ -28,7 +28,7 @@ isPass result | mark result >= 40 = True
               | otherwise = False
 
 isQualify :: ModuleResult -> Bool
-isQualify result | mark result <= 25 = True
+isQualify result | mark result >= 25 = True
                  | otherwise = False
 
 yearPass :: [ModuleResult] -> Bool
@@ -61,7 +61,8 @@ canProgress list | (yearPass list) && (isEnoughCredit list)  == True = True
                  | otherwise = False
 
 
-
+test = canProgress [(ModuleResult 20.0 50), (ModuleResult 20.0 50), (ModuleResult 20.0 30)]
+test2 = canProgress [(ModuleResult 40.0 50), (ModuleResult 20.0 50)]
 -- OO helps to reuse type while functional programming even help to reuse behaviour
 
 
