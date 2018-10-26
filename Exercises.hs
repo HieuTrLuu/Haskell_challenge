@@ -78,10 +78,12 @@ log2 n
             | otherwise = exponent
 
 non2 :: Int -> Int
-non2 n | upperBound < lowerBound = upperBound
-       | upperBound > lowerBound = lowerBound
- where upperBound = 2^(log2 n) - n
-       lowerBound = n - 2^((log2 n) - 1)
+non2 n | upperDistance < lowerDistance = upperDistance
+       | upperDistance > lowerDistance = lowerDistance
+ where upperDistance = 2^(log2 n) - n
+       lowerDistance = n - 2^((log2 n) - 1)
+
+
 
 
 optimalSequence :: Int -> [Instruction]
