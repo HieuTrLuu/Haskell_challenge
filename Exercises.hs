@@ -96,7 +96,8 @@ optimalSequence 1 = []
 -- Exercise 9
 findBusyBeavers :: [Int] -> [[Instruction]]
 findBusyBeavers [] = [[]]
-findBusyBeavers list = final $ transform9 list
+findBusyBeavers list = final9 $ transform9 list
+
  where
   n = length $ filter (==Duplicate)
   num = length $ filter (==Duplicate) $ transform9 list
@@ -120,8 +121,10 @@ helper9 input True
           -- | otherwise = []
 
 transform9 :: [Int] -> [Instruction]
-transform9 [] = [[]]
-transform9 (x:xs) = (helper9 x) : transform9 xs
+transform9 [] = []
+transform9 (x:xs) = (helper9 x boo) : (transform9 xs)
+ where
+   boo = isEvenNegative (x:xs)
 
 transform91 :: [Instruction] -> [Instruction]
 transform91 [] = []
@@ -144,7 +147,7 @@ changeTemp2 x | x == Duplicate = Add
 
 final9 :: [Instruction] -> ([Instruction], [Instruction])
 final9 [] = ([],[])
-final9 xs = ([transform91 xs],[transform92 xs])
+final9 xs = (transform91 xs,transform92 xs)
 
 
 
