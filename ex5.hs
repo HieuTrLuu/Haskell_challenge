@@ -17,8 +17,8 @@ goldenRatio = (1+ sqrt 5) / 2
 
 gssRecursive :: (Float -> Float) -> Float -> Float -> Float -> Float -> Float -> Float -> Float -> Float -> Float
 gssRecursive f a b tol h c d fc fd | h <= tol = h
-                                   | fc < fd =   gssRecursive (f a d tol h*(goldenRatio-1) 0 c 0 fc)
-                                   | otherwise = gssRecursive (f c b tol h*(goldenRatio-1) d 0 fd 0)
+                                   | fc < fd = gssRecursive f a d tol (h*(goldenRatio-1)) 0 c 0 fc
+                                   | otherwise = gssRecursive f c b tol (h*(goldenRatio-1)) d 0 fd 0
  where
   h = (max a b) - (min a b) -- b is max, a is min
   c = a + (goldenRatio -1)*h
@@ -26,11 +26,16 @@ gssRecursive f a b tol h c d fc fd | h <= tol = h
   fc = f c
   fd = f d
 
+
+
 hillClimb :: (Float -> Float) -> Float -> Float -> Float -> Float
-hillClimb f a b tol = gssRecursive(f small big 0 0 0 0 0 )
+hillClimb f a b tol | fc < fd = gssRecursive f a d tol (h*(goldenRatio-1)) 0 c 0 fc
+                    | otherwise = gssRecursive f c b tol (h*(goldenRatio-1)) d 0 fd 0
  where
-  big = max a b
-  small =  min a b
+   h = (max a b) - (min a b) -- b is max, a is min
+   c = a + (goldenRatio -1)*h
+   d = a + (goldenRatio +1)*h
+   fc = f c
+   fd = f d
 
-
--- the acc will store the turn and the prev result
+-- gssRecursive (sin) 0.5 2.0 1e-10 0 0 0 0 0
