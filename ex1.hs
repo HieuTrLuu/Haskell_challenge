@@ -18,8 +18,10 @@ orderList a = [ compare x y | (x,y) <- a  ]
 boolTransform :: [(Ordering,Ordering)] -> [Bool]
 boolTransform a = [ x==y | (x,y) <- a]
 
-splitSort :: Ord a => [a] -> [[a]]
-splitSort ns = splitPlaces truePlaces ns
+
+--TODO: change back the type of splirSort
+splitSort :: [Int] -> [[Int]]
+splitSort ns = customListSplit (reverse truePlaces) ns
  where tupleNumber = zip ns (tail ns)
        tupleOrd = zip (orderList tupleNumber) (tail (orderList tupleNumber))
        oneDown = positions False (boolTransform tupleOrd)
@@ -32,18 +34,16 @@ test3 = zip test2 (tail test2)
 test4 = boolTransform test3
 test5 = [ x+2 | x <- (positions False test4)]
 
+customListSplit :: [Int] -> [Int] -> [[Int]]
+--customListSplit [] _ = [ _ ]
+customListSplit _ [] = [[]]
+customListSplit (x:indexes) list = firstElt:(customListSplit indexes secondElt)
+ where
+  tuple = splitAt x list
+  firstElt = fst tuple
+  secondElt = snd tuple
 
-splitAtList :: [a] -> [a] -> [[a]]
-splitAtList _ [] = [[]]
-splitAtList [] _ = [ _ ]
--- splitAtList (x:xs) y = (splitAt x y) : splitAtList xs y
 
--- splitAt' :: Int -> [a] -> ([a], [a])
--- splitAt' 0 xs     = ([], xs)
--- splitAt' _ []     = ([], [])
--- splitAt' n (x:xs) = (x:xs', xs'')
---   where
---     (xs', xs'') = splitAt (n - 1) xs
 
 
 
