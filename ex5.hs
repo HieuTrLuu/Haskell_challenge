@@ -18,11 +18,13 @@ invphi2 = (3 - sqrt(5)) / 2 -- 1/phi^2
 
 
 gssRecursive :: (Float -> Float) -> Float -> Float -> Float -> Float -> Float -> Float -> Float -> Float -> Float
-gssRecursive f a b tol h c d fc fd | h <= tol = f a
-                                   | fc < fd = gssRecursive f a d tol (h*invphi) (a + invphi2*h) c (f c) fc
+gssRecursive f x y tol h c d fc fd | h <= tol = a
+                                   | fc <= fd = gssRecursive f a d tol (h*invphi) (a + invphi2*h) c (f c) fc
                                    | otherwise = gssRecursive f c b tol (h*invphi) d (a + invphi*h) fd (f d)
  where
-  h = (max a b) - (min a b) -- b is max, a is min
+  a = (min x y)
+  b = (max x y)
+  h = b-a -- b is max, a is min
   c = a + invphi2*h
   d = a + invphi*h
   fc = f c
@@ -33,29 +35,31 @@ gssRecursive f a b tol h c d fc fd | h <= tol = f a
 
 
 hillClimb :: (Float -> Float) -> Float -> Float -> Float -> Float
-hillClimb f a b tol | fc < fd = gssRecursive f a d tol (h*(goldenRatio-1)) 0 c 0 fc
+hillClimb f x y tol | fc < fd = gssRecursive f a d tol (h*(goldenRatio-1)) 0 c 0 fc
                     | otherwise = gssRecursive f c b tol (h*(goldenRatio-1)) d 0 fd 0
  where
-   h = (max a b) - (min a b) -- b is max, a is min
-   c = a + (goldenRatio -1)*h
-   d = a + (goldenRatio +1)*h
+   a = (min x y)
+   b = (max x y)
+   h = b-a -- b is max, a is min
+   c = a + invphi2*h
+   d = a + invphi*h
    fc = f c
    fd = f d
 -- TODO: the incorrect part is in the transfering argument of 2 functions
 -- gssRecursive (sin) 0.5 2.0 1e-10 0 0 0 0 0
-a=0.5
-b=2
-h=1.5
-tol=1e-10
-c = (0.5 + invphi2*1.5)
-d = (0.5 + invphi*1.5)
-fc = sin c
-fd = sin d
+-- a=0.5
+-- b=2
+-- h=1.5
+tol=1e-5
+-- c = (0.5 + invphi2*1.5)
+-- d = (0.5 + invphi*1.5)
+-- fc = sin c
+-- fd = sin d
 
 -- test = gssRecursive (sin) 0.5 2.0 1e-10 1.5 (0.5 + invphi2*1.5) (0.5 + invphi*1.5) (sin (0.5 + invphi2*1.5)) (sin (0.5 + invphi*1.5))
 
 --test = gssRecursive (sin) a b tol h c d fc fd
 
-test = gssRecursive (sin) a b tol 0 0 0 0 0
-test2 = hillClimb (sin) a b tol
-test3 = hillClimb (\x -> 4.0-x*x) (-2.5) 2.5 1e-10
+test = gssRecursive (\x -> 4.0-x*x) (-2.5) 2.5 tol 0 0 0 0 0
+-- test2 = hillClimb (sin) a b tol
+test3 = hillClimb (\x -> 4.0-x*x) (-2.5) 2.5 1e-3
