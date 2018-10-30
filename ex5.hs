@@ -2,6 +2,8 @@
 -- search for the local maximum of f nearest x using an
 -- approximation margin delta and initial step value s
 goldenRatio = (1+ sqrt 5) / 2
+invphi = (math.sqrt(5) - 1) / 2 -- 1/phi
+invphi2 = (3 - math.sqrt(5)) / 2 -- 1/phi^2
 --
 --
 -- data Acc = Acc (Int, Float)
@@ -37,5 +39,5 @@ hillClimb f a b tol | fc < fd = gssRecursive f a d tol (h*(goldenRatio-1)) 0 c 0
    d = a + (goldenRatio +1)*h
    fc = f c
    fd = f d
-
+-- TODO: the incorrect part is in the transfering argument of 2 functions
 -- gssRecursive (sin) 0.5 2.0 1e-10 0 0 0 0 0
