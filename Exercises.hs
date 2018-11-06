@@ -8,6 +8,8 @@
 
 -- This module statement makes public only the specified functions and types
 -- please do not change these lines either
+
+
 module Exercises (splitSort, longestCommonSubList,
     ModuleResult (ModuleResult), canProgress, DegreeClass (First, UpperSecond,
     LowerSecond, Third), classify, hillClimb, nearestRoot, Instruction (Duplicate,
@@ -15,23 +17,126 @@ module Exercises (splitSort, longestCommonSubList,
     findBusyBeavers, Rectangle (Rectangle), simplifyRectangleList, drawEllipse,
     extractMessage, differentStream, unPairAndApply, isShellTreeSum) where
 
+import Data.Set (Set)
+import qualified Data.Set as Set
+import Data.Function (on)
+import Data.Ord (comparing)
+import Data.List
+import Data.List.Split
+
 -- Exercise 1
 -- split a given list into sub-lists
 -- each of these must be strictly ascending, descending, or equal
-splitSort :: Ord a => [a] -> [[a]]
-splitSort ns = [[]]
+positions :: Eq a => a -> [a] -> [Int]
+positions x xs = [ index | (y, index) <- zip xs [0..], x==y]
+
+orderList :: Ord a => [(a,a)] -> [Ordering]
+orderList a = [ compare x y | (x,y) <- a  ]
+
+boolTransform :: [(Ordering,Ordering)] -> [Bool]
+boolTransform a = [ x==y | (x,y) <- a]
+
+splitSort :: [Int] -> [[Int]]
+splitSort ns = customListSplit (reverse truePlaces) ns
+ where tupleNumber = zip ns (tail ns)
+       tupleOrd = zip (orderList tupleNumber) (tail (orderList tupleNumber))
+       oneDown = positions False (boolTransform tupleOrd)
+       truePlaces = [ x+2 | x <- oneDown ]
+
+
+customListSplit :: [Int] -> [Int] -> [[Int]]
+customListSplit _ [] = [[]]
+customListSplit (x:indexes) list = firstElt:(customListSplit indexes secondElt)
+ where
+  tuple = splitAt x list
+  firstElt = fst tuple
+  secondElt = snd tuple
 
 -- Exercise 2
 -- longest common sub-list of a finite list of finite list
-longestCommonSubList :: Eq a => [[a]] -> [a]
-longestCommonSubList xs = []
+lcs :: Ord a => [a] -> [a] -> [a]
+lcs xs ys = snd $ lcs' xs ys
+
+lcs' :: Ord a => [a] -> [a] -> (Int, [a])
+lcs' (x:xs) (y:ys)
+ | x == y = case lcs' xs ys of
+                (len, zs) -> (len + 1, x:zs)
+ | otherwise = let r1@(l1, _) = lcs' (x:xs) ys
+                   r2@(l2, _) = lcs' xs (y:ys)
+               in if l1 >= l2 then r1 else r2
+lcs' [] _ = (0, [])
+lcs' _ [] = (0, [])
+
+--helper function
+helper :: Ord a => [[a]] -> [[a]]
+helper xs = [lcs lists1 lists2 | lists1 <- xs, lists2 <- xs, lists1/=lists2]
+
+lsort :: [[a]] -> [[a]]
+lsort = sortBy (comparing length)
+
+
+
+longestCommonSubList :: Ord a => [[a]] -> [a]
+longestCommonSubList [[]] = []
+longestCommonSubList input = head (helper2 common input)
+ where
+  common = reverse (lsort (helper input))
+
+
+helper2 :: Ord a => [[a]] -> [[a]] -> [[a]]
+helper2 common input = [ x | x <- common, y <-input, lcs x y == x]
+
 
 -- Exercise 3
 -- check whether the given results are sufficient to pass the year
 -- and progress using the University of Southampton Calendar regulations
 data ModuleResult = ModuleResult { credit :: Float, mark :: Int} deriving Show
+
+isEnoughCredit :: [ModuleResult] -> Bool
+isEnoughCredit xs = totalcredit >= 60
+ where
+  totalcredit = sum [mark x | x <- xs ]
+
+--enoughCredit :: [ModuleResult] -> Bool
+--enoughCredit xs = foldr (+) 0
+
+isPass :: ModuleResult -> Bool
+isPass result | mark result >= 40 = True
+              | otherwise = False
+
+isQualify :: ModuleResult -> Bool
+isQualify result | mark result >= 25 = True
+                 | otherwise = False
+
+yearPass :: [ModuleResult] -> Bool
+yearPass [] = True
+yearPass (x:xs) = (isPass x) && (yearPass xs)
+
+yearQualify :: [ModuleResult] -> Bool
+yearQualify [] = False
+yearQualify (x:xs) = (isQualify x) && (yearQualify xs)
+
+isEnoughCompensate :: Bool -> [ModuleResult] -> Bool
+isEnoughCompensate False [] = False
+isEnoughCompensate False xs = False
+isEnoughCompensate True xs | averageMark xs >= 40 = True
+                           | otherwise = False
+
+totalMark ::[ModuleResult] -> Int
+totalMark [] = 0
+totalMark (x:xs) = mark x + totalMark xs
+
+averageMark :: [ModuleResult] -> Int
+averageMark [] = 0
+averageMark list = (totalMark list ) `div` (length list)
+
 canProgress :: [ModuleResult] -> Bool
-canProgress ms = False
+canProgress [] = False
+canProgress list | (yearPass list) && (isEnoughCredit list)  == True = True
+                 | isEnoughCompensate (yearQualify list) list && (isEnoughCredit list) == True = True
+                 | yearQualify list == False = False
+                 | otherwise = False
+
 
 -- Exercise 4
 -- compute the degree classification associate with 3 or 4 year's worth of results
@@ -95,15 +200,7 @@ optimalSequence 1 = []
 
 -- Exercise 9
 findBusyBeavers :: [Int] -> [[Instruction]]
-findBusyBeavers [] = [[]]
-findBusyBeavers list = final9 $ transform9 list
-
- where
-  n = length $ filter (==Duplicate)
-  num = length $ filter (==Duplicate) $ transform9 list
--- findBusyBeavers x:xs = [helper9 x boo ]
---  where
---   boo = isEvenNegative (x:xs)
+findBusyBeavers ns = []
 
 isEvenNegative :: [Int] -> Bool
 isEvenNegative xs = (length $ filter (<0) xs) `mod` 2 == 0
@@ -119,6 +216,8 @@ helper9 input True
           | input == 0 = Duplicate --, Add
           | input >0 = Multiply
           -- | otherwise = []
+--TODO: using Duplicate as the temp thing
+--TODO: the case when Multiply and Add is similar
 
 transform9 :: [Int] -> [Instruction]
 transform9 [] = []
@@ -145,21 +244,14 @@ changeTemp2 x | x == Duplicate = Add
 
 
 
-final9 :: [Instruction] -> ([Instruction], [Instruction])
-final9 [] = ([],[])
-final9 xs = (transform91 xs,transform92 xs)
+-- final9 :: [Instruction] -> [[Instruction]]
+-- final9 [] = [[]]
+-- final9 xs = (transform91 xs,transform92 xs)
+
+g 0 = [""]
+g n = (map ('0':)) (g (n-1)) ++ (map ('1':)) (reverse (g (n-1)))
 
 
-
-
-
--- transform9 :: [[Instruction]] -> [[Instruction]]
--- transform9 list = filter (\xs -> length xs >1) list
-
-
-
--- TODO: does this mean we can not use duplicate in this ?
--- TODO: we do not pop the int that is <0 because if the number of number <0 is even that it can increases the value of seq
 
 -- Exercise 10
 data Rectangle = Rectangle (Int, Int) (Int, Int) deriving (Eq, Show)
@@ -168,13 +260,67 @@ simplifyRectangleList rs = []
 
 -- Exercise 11
 -- convert an ellipse into a minimal list of rectangles representing its image
+merge :: [a] -> [a] -> [a]
+merge xs     []     = xs
+merge []     ys     = ys
+merge (x:xs) (y:ys) = x : y : merge xs ys
+
+-- createRectangles :: (Int, Int) -> [Rectangle]
+-- createRectangles (0,_) = [Rectangle (0,0) (0,0)]
+-- createRectangles (_,0) = [Rectangle (0,0) (0,0)]
+-- createRectangles (a,b) = Rectangle (-a,-b) (a,b): ( merge (createRectangles (a-1,b)) (createRectangles (a,b-1)) )
+--
+-- finalRectangleList :: [Rectangle] -> [Rectangle]
+-- finalRectangleList = Set.toList . Set.fromList
+--
+-- isInEclipse :: Float -> Float -> Float -> Float -> Rectangle -> Bool
+-- isInEclipse x y a b (Rectangle (mx,nx) (px,qx)) | (m-x)^2 / a^2 + (n-x)^2 / b^2 > 1 = False
+--                                                 | (p-x)^2 / a^2 + (q-x)^2 / b^2 > 1 = False
+--                                                 | otherwise = True
+--  where
+--   m = fromIntegral mx
+--   n = fromIntegral nx
+--   p = fromIntegral px
+--   q = fromIntegral qx
+--isInEclipse :: Rectangle -> Bool
+-- TODO : finish this method than using filter to reduce the number of rectangles then use the result of ex10 to finish this
+
+-- drawEllipse :: Float -> Float -> Float -> Float -> [Rectangle]
+-- drawEllipse x y a b = filter (isInEclipse x y a b) list
+--  where
+--   ax = floor a
+--   bx = floor b
+--   list = finalRectangleList $ createRectangles (ax,bx)
+
 drawEllipse :: Float -> Float -> Float -> Float -> [Rectangle]
 drawEllipse x y a b = []
 
+
 -- Exercise 12
 -- extract a message hidden using a simple steganography technique
+
 extractMessage :: String -> String
-extractMessage s = ""
+extractMessage s = outputString
+ where
+  numList = seperateString (filter isEncoded s)
+  outputString = [decoded x | x<- numList]
+
+isEncoded :: Char -> Bool
+isEncoded '0' = True
+isEncoded '1' = True
+isEncoded _ = False
+
+seperateString :: String -> [String]
+seperateString s = splitPlaces (generateDuplicate2List (length s)) s
+
+generateDuplicate2List :: Int -> [Int]
+generateDuplicate2List x = 2:generateDuplicate2List (x-1)
+
+decoded :: String -> Char
+decoded "00" = 'a'
+decoded "01" = 'b'
+decoded "10" = 'c'
+decoded "11" = 'd'
 
 -- Exercise 13
 -- return a stream which is different from all streams of the given stream
@@ -185,8 +331,34 @@ differentStream ss = []
 -- Exercise 14
 -- extract both components from a square shell pair and apply the (curried) function
 unPairAndApply :: Int -> (Int -> Int -> a) -> a
-unPairAndApply n f = f 0 0
+unPairAndApply n f = f x y
+ where
+  x = fst $ unPair n
+  y = snd $ unPair n
+
+unPair :: Int -> (Int,Int)
+unPair z | (z - m^2) < m = (z - m^2, m)
+         | otherwise = (m , m^2 + 2*m -z)
+ where m = isqrt z
+
+isqrt :: Int -> Int
+isqrt = floor . sqrt . fromIntegral
 
 -- Exercise 15
+listOfNode :: Int -> [Int]
+listOfNode 0 = [0]
+listOfNode n = x:(listOfNode x)
+ where
+  x = fst $ unPair n
+
 isShellTreeSum :: Int -> Bool
-isShellTreeSum n = False
+isShellTreeSum n = (sum $ tail $ listOfNode n) == snd (unPair n)
+
+-- TODO∷
+-- 1. rename and comment
+-- 2. change the type def of ex2 to original
+-- 3. know why ex11 can not compile and fix the problem of giving incorrect output
+-- 5. understand why it can't find the maximum point ?
+-- 6. do ex13
+-- 7. do ex9
+-- 8. check ex6, ex15
