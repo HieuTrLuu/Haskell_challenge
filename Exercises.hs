@@ -252,20 +252,20 @@ changeTemp2 x | x == Duplicate = Add
 --   grayList = g $ length dupList
 --   tupleIns = zip grayList [repeat xs]
 
-change :: [Int] -> ([Instruction],String) -> [Instruction]
-change indexs (ins,io) | (head io) == 0 = change ((merge first (Add: (tail second))), tail io) (tail indexs)
-                       | (head io) == 1 = change ((merge first (Pop: (tail second))), tail io) (tail indexs)
+change :: [Int] -> (String, [Instruction]) -> [Instruction]
+change indexs (ins,io) | (head io) == '0' = change (tail indexs) (tail io, (merge first (Add: (tail second))))
+                       | (head io) == '1' = change (tail indexs) (tail io, (merge first (Pop: (tail second))))
  where
   tuples = splitAt (head indexs) ins
   first = fst tuples
   second = snd tuples
 
--- mapChange :: [Instruction] -> [[Instruction]]
--- mapChange xs = map (change dupList) tupleIns
---  where
---   dupList = elementIndexes Duplicate xs
---   grayList = g $ length dupList
---   tupleIns = zip grayList [repeat xs]
+mapChange :: [Instruction] -> [[Instruction]]
+mapChange xs = map (change dupList) tupleIns
+ where
+  dupList = elementIndexes Duplicate xs
+  grayList = g $ length dupList
+  tupleIns = zip grayList (repeat xs)
 
 
 g 0 = [""]
