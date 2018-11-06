@@ -27,8 +27,8 @@ import Data.List.Split
 -- Exercise 1
 -- split a given list into sub-lists
 -- each of these must be strictly ascending, descending, or equal
-positions :: Eq a => a -> [a] -> [Int]
-positions x xs = [ index | (y, index) <- zip xs [0..], x==y]
+elementIndexes :: Eq a => a -> [a] -> [Int]
+elementIndexes x xs = [ index | (y, index) <- zip xs [0..], x==y]
 
 orderList :: Ord a => [(a,a)] -> [Ordering]
 orderList a = [ compare x y | (x,y) <- a  ]
@@ -40,7 +40,7 @@ splitSort :: [Int] -> [[Int]]
 splitSort ns = customListSplit (reverse truePlaces) ns
  where tupleNumber = zip ns (tail ns)
        tupleOrd = zip (orderList tupleNumber) (tail (orderList tupleNumber))
-       oneDown = positions False (boolTransform tupleOrd)
+       oneDown = elementIndexes False (boolTransform tupleOrd)
        truePlaces = [ x+2 | x <- oneDown ]
 
 
@@ -246,7 +246,27 @@ changeTemp2 x | x == Duplicate = Add
 
 -- final9 :: [Instruction] -> [[Instruction]]
 -- final9 [] = [[]]
--- final9 xs = (transform91 xs,transform92 xs)
+-- final9 xs =
+--  where
+--   dupList = elementIndexes Duplicate xs
+--   grayList = g $ length dupList
+--   tupleIns = zip grayList [repeat xs]
+
+change :: [Int] -> ([Instruction],String) -> [Instruction]
+change indexs (ins,io) | (head io) == 0 = change ((merge first (Add: (tail second))), tail io) (tail indexs)
+                       | (head io) == 1 = change ((merge first (Pop: (tail second))), tail io) (tail indexs)
+ where
+  tuples = splitAt (head indexs) ins
+  first = fst tuples
+  second = snd tuples
+
+-- mapChange :: [Instruction] -> [[Instruction]]
+-- mapChange xs = map (change dupList) tupleIns
+--  where
+--   dupList = elementIndexes Duplicate xs
+--   grayList = g $ length dupList
+--   tupleIns = zip grayList [repeat xs]
+
 
 g 0 = [""]
 g n = (map ('0':)) (g (n-1)) ++ (map ('1':)) (reverse (g (n-1)))
