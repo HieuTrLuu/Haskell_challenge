@@ -200,7 +200,9 @@ optimalSequence 1 = []
 
 -- Exercise 9
 findBusyBeavers :: [Int] -> [[Instruction]]
-findBusyBeavers ns = []
+findBusyBeavers ns = mapChange bufferIns
+ where
+  bufferIns = transform9 ns
 
 isEvenNegative :: [Int] -> Bool
 isEvenNegative xs = (length $ filter (<0) xs) `mod` 2 == 0
@@ -279,7 +281,7 @@ mapChange xs = map (change dupList) tupleIns
 g 0 = [""]
 g n = (map ('0':)) (g (n-1)) ++ (map ('1':)) (reverse (g (n-1)))
 
-
+-- TODO: how to resolve the problem of having n number but (n-1) ops ?
 
 -- Exercise 10
 data Rectangle = Rectangle (Int, Int) (Int, Int) deriving (Eq, Show)
