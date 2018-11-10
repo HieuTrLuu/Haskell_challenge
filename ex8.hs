@@ -26,7 +26,7 @@ log2 n
             | otherwise = exponent
 
 non2 :: Int -> (Int,Int)
-non2 n | upperDistance < lowerDistance = (log2 n , upperDistance )
+non2 n | upperDistance <= lowerDistance = (log2 n , upperDistance )
        | upperDistance > lowerDistance = ((log2 n) - 1, lowerDistance )
  where upperDistance = 2^(log2 n) - n
        lowerDistance = n - 2^((log2 n) - 1)
