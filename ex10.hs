@@ -60,16 +60,6 @@ e = Rectangle (20, 10) (5,0)
 f = Rectangle (10, 10) (0,0)
 test3 = isCombined e f
 
---TODO: check is combined 1st
-
--- isFit :: Rectangle -> Rectangle -> Rectangle
--- isFit a b =
---  where
---   horizontalA = fst $ getTopRight a - fst $ get getBottomLeft a
---   vertocalA = snd $ getTopRight a - snd $ get getBottomLeft a
---   horizontalB = fst $ getTopRight b - fst $ get getBottomLeft b
---   verticalB = snd $ getTopRight b - snd $ get getBottomLeft b
-
 isCombined :: Rectangle -> Rectangle -> [Rectangle]
 isCombined a b
  | (ya1 == yb1) && (ya2 == yb2) && (xa1 > xb1) = [Rectangle (xa1, ya1) (xb2, yb2)]
@@ -87,7 +77,7 @@ isCombined a b
     ya2 = snd $ getBottomLeft a
     yb2 = snd $ getBottomLeft b
 
-testCombined = isCombined a b
+-- testCombined = isCombined a b
 
 getCentre :: Rectangle -> Position
 getCentre rectangle = Position (x,y)
@@ -106,19 +96,22 @@ compareYcentre a b = compare (getY $ getCentre a) (getY $ getCentre b)
 
 sortedList = sortBy (compareXcentre ) [Rectangle (0,0) (2,2), Rectangle (0,0) (10,10)]
 
--- simplifyRectangleList :: [Rectangle] -> [Rectangle]
--- simplifyRectangleList rs = [isOverlapse head sortedRectangles (head $ tail sortedRectangles), simplifyRectangleList (tail sortedRectangles)]
---  where
---   sortedRectangles = sortBy (compareXcentre ) rs
-
 checkCombined :: [Rectangle] -> [Rectangle]
-checkCombined list = [ head $ isCombined x y| x<-list, y<-list , x /= y, (length $ isCombined x y) == 1]
+checkCombined list = list2Set $ [ head $ isCombined x y| x<-list, y<-list ]
 
 checkOverlapse :: [Rectangle] -> [Rectangle]
-checkOverlapse list = [ head $ isOverlapse x y| x<-list, y<-list, x /= y, (length $ isOverlapse x y) == 1]
+checkOverlapse list = list2Set $ [ head $ isOverlapse x y| x<-list, y<-list ]
 
-list = [Rectangle (0,0) (2,2), Rectangle (0,0) (2,2), Rectangle (0,0) (1,1)]
-testList = checkOverlapse list
+simplifyRectangleList :: [Rectangle] -> [Rectangle]
+-- TODO: do i check overlapse first or combine first ?
+simplifyRectangleList list = checkOverlapse $ checkCombined list
 
--- TODO :using Set.toList and Set.fromList , finish this question
--- TODO : write the getCentre methods, then the function to sort the list of rectangles base of x or y cordinate of the list, then write a recursive function to combine rectangles
+list2Set :: Ord a => [a] -> [a]
+list2Set list = Set.toList $ Set.fromList list
+
+
+-- testCombined = checkCombined [Rectangle (0,0) (2,2)]
+-- testOverlapse = checkOverlapse [Rectangle (0,0) (2,2), Rectangle (0,0) (1,1)]
+-- totalTest = simplifyRectangleList [Rectangle (0,0) (1,1), Rectangle (0,0) (2,2)]
+
+-- TODO: write a better test suite for this
