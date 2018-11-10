@@ -34,7 +34,7 @@ longestCommonSubList input = head (helper2 common input)
   common = reverse (lsort (helper input))
 
 test = [[1,2,3,4], [0,1,3,4], [1,3,4],[1],[1,2,3]]
-test2 = maximumBy (compare `on` length)  (helper test)
+test2 = maximumBy (compare `on` length) 0 (helper test)
 test3 = reverse (lsort (helper test))
 
 helper2 :: Ord a => [[a]] -> [[a]] -> [[a]]
