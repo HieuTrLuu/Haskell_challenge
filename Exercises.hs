@@ -54,10 +54,10 @@ customListSplit (x:indexes) list = firstElt:(customListSplit indexes secondElt)
 
 -- Exercise 2
 -- longest common sub-list of a finite list of finite list
-lcs :: Ord a => [a] -> [a] -> [a]
+lcs :: Eq a => [a] -> [a] -> [a]
 lcs xs ys = snd $ lcs' xs ys
 
-lcs' :: Ord a => [a] -> [a] -> (Int, [a])
+lcs' :: Eq a => [a] -> [a] -> (Int, [a])
 lcs' (x:xs) (y:ys)
  | x == y = case lcs' xs ys of
                 (len, zs) -> (len + 1, x:zs)
@@ -67,26 +67,21 @@ lcs' (x:xs) (y:ys)
 lcs' [] _ = (0, [])
 lcs' _ [] = (0, [])
 
---helper function
-helper :: Ord a => [[a]] -> [[a]]
+helper :: Eq a => [[a]] -> [[a]]
 helper xs = [lcs lists1 lists2 | lists1 <- xs, lists2 <- xs, lists1/=lists2]
+
+helper2 :: Eq a => [[a]] -> [[a]] -> [[a]]
+helper2 common input = [ x | x <- common, y <-input, lcs x y == x]
 
 lsort :: [[a]] -> [[a]]
 lsort = sortBy (comparing length)
 
 
-
-longestCommonSubList :: Ord a => [[a]] -> [a]
+longestCommonSubList :: Eq a => [[a]] -> [a]
 longestCommonSubList [[]] = []
 longestCommonSubList input = head (helper2 common input)
  where
   common = reverse (lsort (helper input))
-
-
-helper2 :: Ord a => [[a]] -> [[a]] -> [[a]]
-helper2 common input = [ x | x <- common, y <-input, lcs x y == x]
-
-
 -- Exercise 3
 -- check whether the given results are sufficient to pass the year
 -- and progress using the University of Southampton Calendar regulations
