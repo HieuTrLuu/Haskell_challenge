@@ -4,7 +4,7 @@
 
 import Data.List
 differentStream :: [[Int]] -> [Int]
-differentStream ss = [ get (head x - 1) x | x<-ss]
+differentStream ss = [ get 0 x | x<-ss] -- how to do this ?
 
 -- customGet :: [[Int]] -> Int -> [Int]
 -- customGet ss num = (get (length ss - num) (get (length ss - num) ss)): customGet ss (num-1)
