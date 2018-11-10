@@ -38,12 +38,12 @@ isInEclipse x y a b (Rectangle (mx,nx) (px,qx)) | (m-x)^2 / a^2 + (n-x)^2 / b^2 
   p = fromIntegral px
   q = fromIntegral qx
 
--- drawEllipse :: Float -> Float -> Float -> Float -> [Rectangle]
--- drawEllipse x y a b = filter (isInEclipse x y a b) list
---  where
---   ax = floor a
---   bx = floor b
---   list = finalRectangleList $ createRectangles (ax,bx) (x,y)
+drawEllipse :: Float -> Float -> Float -> Float -> [Rectangle]
+drawEllipse x y a b = filter (isInEclipse x y a b) list
+ where
+  as = floor x
+  bs = floor y
+  list = finalRectangleList $ createRectangles (x,y) (as,bs)
 
 -- getPoint :: Float -> Float -> Float -> Float -> (Int,Int)
 -- getPoint xC yC a b = (x , y)
@@ -51,5 +51,8 @@ isInEclipse x y a b (Rectangle (mx,nx) (px,qx)) | (m-x)^2 / a^2 + (n-x)^2 / b^2 
  --  x = floor (xC + a)
  --  y = floor (yC + b)
 
-test = createRectangles (0,0) (2,2)
--- test = drawEllipse 0.0 0.0 1.0 1.0
+testCreate = createRectangles (0,0) (1,1)
+test = drawEllipse 0.0 0.0 1.0 1.0
+testFilter = filter (isInEclipse 0 0 1 1) testCreate
+
+--TODO: the filter does not work. Also it does not make any sense as the output for test11 is a line ?
