@@ -28,6 +28,7 @@ import Data.List.Split
 -- split a given list into sub-lists
 -- each of these must be strictly ascending, descending, or equal
 elementIndexes :: Eq a => a -> [a] -> [Int]
+elementIndexes x [] = []
 elementIndexes x xs = [ index | (y, index) <- zip xs [0..], x==y]
 
 orderList :: Ord a => [(a,a)] -> [Ordering]
@@ -195,6 +196,7 @@ optimalSequence 1 = []
 
 -- Exercise 9
 findBusyBeavers :: [Int] -> [[Instruction]]
+findBusyBeavers [] = []
 findBusyBeavers ns = mapChange bufferIns
  where
   bufferIns = transform9 ns
@@ -253,28 +255,31 @@ mergeIns index x ins = merge (fst tuple) (x:(tail $ snd tuple))
  where
   tuple = splitAt index ins
 
-
+insList = [Pop,Duplicate, Add, Pop]
 
 change :: [Int] -> (String, [Instruction]) -> [Instruction]
-change [] (io, ins) = ins
-change indexs (io, ins) | (head io) == '0' = change (tail indexs) (tail io, mergeIns index Pop ins)
-                       | (head io) == '1' = change (tail indexs) (tail io, mergeIns index Add ins)
+change _ ([], ins) = ins
+change [] (_, ins) = ins
+change indexs (io, ins) | (head io) == '0' = change (tail indexs) (tail io, mergeAdd)
+                        | (head io) == '1' = change (tail indexs) (tail io, mergePop)
+                        | otherwise = []
  where
   tuples = splitAt (head indexs) ins
-  str = fst tuples
-  ins = snd tuples
-  index = head indexs
+  mergePop = mergeIns (head indexs) Pop ins
+  mergeAdd = mergeIns (head indexs) Add ins
 
 mapChange :: [Instruction] -> [[Instruction]]
+mapChange [] = [[]]
 mapChange xs = map (change dupList) tupleIns
  where
   dupList = elementIndexes Duplicate xs
-  grayList = g $ length dupList
+  n = length dupList
+  grayList = grayGen n
   tupleIns = zip grayList (repeat xs)
 
-
-g 0 = [""]
-g n = (map ('0':)) (g (n-1)) ++ (map ('1':)) (reverse (g (n-1)))
+grayGen :: Int -> [String]
+grayGen 0 = [""]
+grayGen n = (map ('0':)) (grayGen (n-1)) ++ (map ('1':)) (reverse (grayGen (n-1)))
 
 -- TODO: how to resolve the problem of having n number but (n-1) ops ?
 
