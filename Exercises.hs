@@ -200,7 +200,9 @@ optimalSequence 1 = []
 
 -- Exercise 9
 findBusyBeavers :: [Int] -> [[Instruction]]
-findBusyBeavers ns = []
+findBusyBeavers ns = mapChange bufferIns
+ where
+  bufferIns = transform9 ns
 
 isEvenNegative :: [Int] -> Bool
 isEvenNegative xs = (length $ filter (<0) xs) `mod` 2 == 0
@@ -251,14 +253,22 @@ changeTemp2 x | x == Duplicate = Add
 --   dupList = elementIndexes Duplicate xs
 --   grayList = g $ length dupList
 --   tupleIns = zip grayList [repeat xs]
+mergeIns :: Int -> Instruction -> [Instruction] -> [Instruction]
+mergeIns index x ins = merge (fst tuple) (x:(tail $ snd tuple))
+ where
+  tuple = splitAt index ins
+
+
 
 change :: [Int] -> (String, [Instruction]) -> [Instruction]
-change indexs (ins,io) | (head io) == '0' = change (tail indexs) (tail io, (merge first (Add: (tail second))))
-                       | (head io) == '1' = change (tail indexs) (tail io, (merge first (Pop: (tail second))))
+change [] (io, ins) = ins
+change indexs (io, ins) | (head io) == '0' = change (tail indexs) (tail io, mergeIns index Pop ins)
+                       | (head io) == '1' = change (tail indexs) (tail io, mergeIns index Add ins)
  where
   tuples = splitAt (head indexs) ins
-  first = fst tuples
-  second = snd tuples
+  str = fst tuples
+  ins = snd tuples
+  index = head indexs
 
 mapChange :: [Instruction] -> [[Instruction]]
 mapChange xs = map (change dupList) tupleIns
@@ -271,7 +281,7 @@ mapChange xs = map (change dupList) tupleIns
 g 0 = [""]
 g n = (map ('0':)) (g (n-1)) ++ (map ('1':)) (reverse (g (n-1)))
 
-
+-- TODO: how to resolve the problem of having n number but (n-1) ops ?
 
 -- Exercise 10
 data Rectangle = Rectangle (Int, Int) (Int, Int) deriving (Eq, Show)
