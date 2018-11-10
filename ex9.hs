@@ -1,11 +1,12 @@
+data Instruction = Add | Subtract | Multiply | Duplicate | Pop deriving (Eq, Show)
 -- Exercise 9
-findBusyBeavers :: [Int] -> [[Instruction]]
-findBusyBeavers [] = [[]]
-findBusyBeavers list = final9 $ transform9 list
-
- where
-  n = length $ filter (==Duplicate)
-  num = length $ filter (==Duplicate) $ transform9 list
+-- findBusyBeavers :: [Int] -> [[Instruction]]
+-- findBusyBeavers [] = [[]]
+-- findBusyBeavers list = final9 $ transform9 list
+ --
+ -- where
+ --  n = length $ filter (==Duplicate)
+ --  num = length $ filter (==Duplicate) $ transform9 list
 -- findBusyBeavers x:xs = [helper9 x boo ]
 --  where
 --   boo = isEvenNegative (x:xs)
@@ -24,6 +25,8 @@ helper9 input True
           | input == 0 = Duplicate --, Add
           | input >0 = Multiply
           -- | otherwise = []
+--TODO: using Duplicate as the temp thing
+--TODO: the case when Multiply and Add is similar
 
 transform9 :: [Int] -> [Instruction]
 transform9 [] = []
@@ -50,9 +53,13 @@ changeTemp2 x | x == Duplicate = Add
 
 
 
-final9 :: [Instruction] -> ([Instruction], [Instruction])
-final9 [] = ([],[])
+final9 :: [Instruction] -> [[Instruction]]
+final9 [] = [[]]
 final9 xs = (transform91 xs,transform92 xs)
+
+g 0 = [""]
+g n = (map ('0':)) (g (n-1)) ++ (map ('1':)) (reverse (g (n-1)))
+
 
 
 
