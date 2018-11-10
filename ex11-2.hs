@@ -10,26 +10,20 @@ merge xs     []     = xs
 merge []     ys     = ys
 merge (x:xs) (y:ys) = x : y : merge xs ys
 
-
-createRectangles :: (Int, Int) -> (Float, Float) -> [Rectangle]
-createRectangles (x,_) (xC,yC) = []
-createRectangles (_,y) (xC,yC) = []
-createRectangles (var1,var2) (xC,yC) = (Rectangle (op1,op2) (var1,var2) ): ( merge (createRectangles (var1 -h,var2)) (createRectangles (var1,var2-v)) )
- where
-  h | x >= 0 = 1
-    | x< 0 = -1
-  v | y>= 0 = 1
-    | y<0 = -1
-  x = floor xC
-  y = floor yC
-  op1 = x - var1
-  op2 = y - var2
--- a > x, b> y
-
--- createRectangles :: (Int, Int) -> [Rectangle]
--- createRectangles (0,_) = [Rectangle (0,0) (0,0)]
--- createRectangles (_,0) = [Rectangle (0,0) (0,0)]
--- createRectangles (a,b) = Rectangle (-a,-b) (a,b): ( merge (createRectangles (a-1,b)) (createRectangles (a,b-1)) )
+createRectangles ::  (Float, Float) -> (Int, Int) -> [Rectangle]
+createRectangles (xC,yC) (var1,var2)
+ | var1 == floor xC =[]
+ | var2 == floor yC = []
+ | otherwise = (Rectangle (var1,var2) (op1,op2)): ( merge (createRectangles (xC,yC) (var1 - h,var2)) (createRectangles (xC,yC) (var1,var2 - v)) )
+  where
+   x = floor xC
+   y = floor yC
+   h | x >= 0 = 1
+     | x< 0 = -1
+   v | y>= 0 = 1
+     | y<0 = -1
+   op1 = x - var1
+   op2 = y - var2
 
 finalRectangleList :: [Rectangle] -> [Rectangle]
 finalRectangleList = Set.toList . Set.fromList
@@ -43,18 +37,19 @@ isInEclipse x y a b (Rectangle (mx,nx) (px,qx)) | (m-x)^2 / a^2 + (n-x)^2 / b^2 
   n = fromIntegral nx
   p = fromIntegral px
   q = fromIntegral qx
---isInEclipse :: Rectangle -> Bool
--- TODO : finish this method than using filter to reduce the number of rectangles then use the result of ex10 to finish this
 
-drawEllipse :: Float -> Float -> Float -> Float -> [Rectangle]
-drawEllipse x y a b = filter (isInEclipse x y a b) list
- where
-  ax = floor a
-  bx = floor b
-  list = finalRectangleList $ createRectangles (ax,bx)
+-- drawEllipse :: Float -> Float -> Float -> Float -> [Rectangle]
+-- drawEllipse x y a b = filter (isInEclipse x y a b) list
+--  where
+--   ax = floor a
+--   bx = floor b
+--   list = finalRectangleList $ createRectangles (ax,bx) (x,y)
 
-getPoint :: Float -> Float -> Float -> Float -> (Int,Int)
-getPoint xC yC a b = (x , y)
- where
-  x = floor (xC + a)
-  y = floor (yC + b)
+-- getPoint :: Float -> Float -> Float -> Float -> (Int,Int)
+-- getPoint xC yC a b = (x , y)
+ -- where
+ --  x = floor (xC + a)
+ --  y = floor (yC + b)
+
+test = createRectangles (0,0) (2,2)
+-- test = drawEllipse 0.0 0.0 1.0 1.0
