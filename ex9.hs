@@ -1,8 +1,11 @@
 data Instruction = Add | Subtract | Multiply | Duplicate | Pop deriving (Eq, Show)
 -- Exercise 9
--- findBusyBeavers :: [Int] -> [[Instruction]]
--- findBusyBeavers [] = [[]]
--- findBusyBeavers list = final9 $ transform9 list
+findBusyBeavers :: [Int] -> [[Instruction]]
+findBusyBeavers [] = [[]]
+findBusyBeavers xs = []
+ where
+  list = zip xs (tail xs)
+
  --
  -- where
  --  n = length $ filter (==Duplicate)
@@ -10,6 +13,20 @@ data Instruction = Add | Subtract | Multiply | Duplicate | Pop deriving (Eq, Sho
 -- findBusyBeavers x:xs = [helper9 x boo ]
 --  where
 --   boo = isEvenNegative (x:xs)
+
+ab :: Int -> Int
+ab x | x >=0 = x
+     | otherwise = -x
+
+checkOps :: (Int,Int) -> Instruction
+checkOps (x,y) | x == 0 = Duplicate
+               | productNum > sumNum = Multiply
+               | productNum < sumNum = Add
+               | productNum == sumNum = Duplicate --thinking
+ where
+  sumNum = x + y
+  productNum = ab (x * y)
+
 
 isEvenNegative :: [Int] -> Bool
 isEvenNegative xs = (length $ filter (<0) xs) `mod` 2 == 0
@@ -53,9 +70,9 @@ changeTemp2 x | x == Duplicate = Add
 
 
 
-final9 :: [Instruction] -> [[Instruction]]
-final9 [] = [[]]
-final9 xs = (transform91 xs,transform92 xs)
+-- final9 :: [Instruction] -> [[Instruction]]
+-- final9 [] = [[]]
+-- final9 xs = (transform91 xs,transform92 xs)
 
 g 0 = [""]
 g n = (map ('0':)) (g (n-1)) ++ (map ('1':)) (reverse (g (n-1)))

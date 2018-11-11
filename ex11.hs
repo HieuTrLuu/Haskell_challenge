@@ -11,10 +11,17 @@ merge []     ys     = ys
 merge (x:xs) (y:ys) = x : y : merge xs ys
 
 
-createRectangles :: (Int, Int) -> [Rectangle]
-createRectangles (0,_) = [Rectangle (0,0) (0,0)]
-createRectangles (_,0) = [Rectangle (0,0) (0,0)]
-createRectangles (a,b) = Rectangle (-a,-b) (a,b): ( merge (createRectangles (a-1,b)) (createRectangles (a,b-1)) )
+createRectangles :: (Int, Int) -> (Float, Float) -> [Rectangle]
+createRectangles (x,y) (xC,yC) = []
+createRectangles (var1,var2) (xC,yC) = 
+ where
+  h | x >= 0 = 1
+    | x< 0 = -1
+  v | y>= 0 = 1
+    | y<0 = -1
+  x = floor xC
+  y = floor yC
+-- a > x, b> y
 
 finalRectangleList :: [Rectangle] -> [Rectangle]
 finalRectangleList = Set.toList . Set.fromList
@@ -37,3 +44,9 @@ drawEllipse x y a b = filter (isInEclipse x y a b) list
   ax = floor a
   bx = floor b
   list = finalRectangleList $ createRectangles (ax,bx)
+
+getPoint :: Float -> Float -> Float -> Float -> (Int,Int)
+getPoint xC yC a b = (x , y)
+ where
+  x = floor (xC + a)
+  y = floor (yC + b)

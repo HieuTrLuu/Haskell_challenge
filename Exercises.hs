@@ -199,7 +199,21 @@ findBusyBeavers :: [Int] -> [[Instruction]]
 findBusyBeavers [] = []
 findBusyBeavers ns = mapChange bufferIns
  where
-  bufferIns = transform9 ns
+  bufferIns = transform9 $ reverse $ tail $ reverse ns
+  evenNegative = isEvenNegative ns
+
+change2ops :: [Int] -> [Instruction]
+change2ops xs = map (checkOps) zipList
+ where
+  zipList = zip xs (tail xs)
+
+--TODO: write a funcition to return the maximum value upto an index ?
+
+
+--compareAddAndMul :: [Int] -> [Int]
+--TODO :this return a list where op and multiply is the same
+
+
 
 isEvenNegative :: [Int] -> Bool
 isEvenNegative xs = (length $ filter (<0) xs) `mod` 2 == 0
@@ -240,16 +254,19 @@ changeTemp1 x | x == Duplicate = Pop
 changeTemp2 :: Instruction -> Instruction
 changeTemp2 x | x == Duplicate = Add
               | otherwise = x
+ab :: Int -> Int
+ab x | x >=0 = x
+              | otherwise = -x
 
+checkOps :: (Int,Int) -> Instruction
+checkOps (x,y) | x == 0 = Duplicate
+               | productNum > sumNum = Multiply
+               | productNum < sumNum = Add
+               | productNum == sumNum = Duplicate --thinking
+ where
+  sumNum = x + y
+  productNum = ab (x * y)
 
-
--- final9 :: [Instruction] -> [[Instruction]]
--- final9 [] = [[]]
--- final9 xs =
---  where
---   dupList = elementIndexes Duplicate xs
---   grayList = g $ length dupList
---   tupleIns = zip grayList [repeat xs]
 mergeIns :: Int -> Instruction -> [Instruction] -> [Instruction]
 mergeIns index x ins = merge (fst tuple) (x:(tail $ snd tuple))
  where
@@ -281,7 +298,8 @@ grayGen :: Int -> [String]
 grayGen 0 = [""]
 grayGen n = (map ('0':)) (grayGen (n-1)) ++ (map ('1':)) (reverse (grayGen (n-1)))
 
--- TODO: how to resolve the problem of having n number but (n-1) ops ?
+
+
 
 -- Exercise 10
 data Rectangle = Rectangle (Int, Int) (Int, Int) deriving (Eq, Show)
@@ -386,9 +404,9 @@ isShellTreeSum n = (sum $ tail $ listOfNode n) == snd (unPair n)
 
 -- TODO∷
 -- 1. rename and comment
--- 2. change the type def of ex2 to original
--- 3. know why ex11 can not compile and fix the problem of giving incorrect output
 -- 5. understand why it can't find the maximum point ?
 -- 6. do ex13
 -- 7. do ex9
--- 8. check ex6, ex15
+-- 8. check ex3, ex4, ex5, ex6, ex15
+-- 9. do ex5
+-- 10. Ask the demonstrator about the test of ex11
