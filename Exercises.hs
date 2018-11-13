@@ -241,7 +241,8 @@ findBusyBeavers [] = []
 findBusyBeavers ns = filter9 (bruteForce9 ns)
 
 -- Exercise 10
-data Rectangle = Rectangle (Int, Int) (Int, Int) deriving (Eq, Show)
+data Rectangle = Rectangle (Int, Int) (Int, Int) deriving (Eq, Ord, Show)
+--TODO: I have include Ord in the definition of Rectangle, need to remove it
 simplifyRectangleList :: [Rectangle] -> [Rectangle]
 simplifyRectangleList rs = []
 
@@ -259,9 +260,8 @@ createRectangles (_,0) = [Rectangle (0,0) (0,0)]
 createRectangles (a,b) = merge [Rectangle (-a,-b) (a,b), Rectangle (-a,0) (a,0), Rectangle (0,-b) (0,b) ] ( merge (createRectangles (a-1,b)) (createRectangles (a,b-1)) )
 
 finalRectangleList :: [Rectangle] -> [Rectangle]
---finalRectangleList = Set.toList . Set.fromList 
+finalRectangleList = Set.toList . Set.fromList 
 --Why this method did not work ?
-finalRectangleList xs = []
 
 
 isInEclipse :: Float -> Float -> Float -> Float -> Rectangle -> Bool
@@ -273,7 +273,6 @@ isInEclipse x y a b (Rectangle (mx,nx) (px,qx)) | (m-x)^2 / a^2 + (n-x)^2 / b^2 
   n = fromIntegral nx
   p = fromIntegral px
   q = fromIntegral qx
---isInEclipse :: Rectangle -> Bool
 -- TODO : finish this method than using filter to reduce the number of rectangles then use the result of ex10 to finish this
 
 drawEllipse :: Float -> Float -> Float -> Float -> [Rectangle]
@@ -283,8 +282,6 @@ drawEllipse x y a b = filter (isInEclipse x y a b) list
   bx = floor b
   list = finalRectangleList $ createRectangles (ax,bx)
 
--- drawEllipse :: Float -> Float -> Float -> Float -> [Rectangle]
--- drawEllipse x y a b = []
 
 
 -- Exercise 12
