@@ -23,6 +23,7 @@ import Data.Function (on)
 import Data.Ord (comparing)
 import Data.List
 import Data.List.Split
+import Control.Monad
 
 -- Exercise 1
 -- split a given list into sub-lists
@@ -210,12 +211,12 @@ optimalSequence 1 = []
 
 
 -- Exercise 9
-findBusyBeavers :: [Int] -> [[Instruction]]
-findBusyBeavers [] = []
-findBusyBeavers ns = mapChange bufferIns
- where
-  bufferIns = transform9 $ reverse $ tail $ reverse ns
-  evenNegative = isEvenNegative ns
+-- findBusyBeavers :: [Int] -> [[Instruction]]
+-- findBusyBeavers [] = []
+-- findBusyBeavers ns = mapChange bufferIns
+--  where
+--   bufferIns = transform9 $ reverse $ tail $ reverse ns
+--   evenNegative = isEvenNegative ns
 
 change2ops :: [Int] -> [Instruction]
 change2ops xs = map (checkOps) zipList
@@ -314,13 +315,32 @@ grayGen 0 = [""]
 grayGen n = (map ('0':)) (grayGen (n-1)) ++ (map ('1':)) (reverse (grayGen (n-1)))
 
 finalUpUntilN :: [Int] -> [Instruction] -> Int
-executeInstructionSequence listInt listIns | length buffer == 1 = head buffer
-                                           | otherwise = error("not correct ex 9")
+finalUpUntilN listInt listIns | length buffer == 1 = head buffer
+                              | otherwise = error("not correct ex 9")
  where
-   buffer = executeInstructionSequence listInt listIns)
+   buffer = executeInstructionSequence listInt listIns
 
 
+bruteForce9 :: [Int] -> [([Instruction],Int)]
+bruteForce9 inputList = [(x,(finalUpUntilN inputList x)) |x <- possibleIns ]
+ where
+  possibleIns = replicateM (length inputList - 1) [Add, Pop, Multiply]
+  --buffer = (finalUpUntilN inputList x)
 
+getHighestFinal :: [([Instruction],Int)] -> Int
+getHighestFinal xs = maximum [snd x | x<-xs ]
+
+compareSnd :: Int -> (a,Int) -> Bool
+compareSnd max (x,num) = (max == num)
+
+filter9 :: [([Instruction],Int)] -> [[Instruction]]--[([Instruction],Int)]
+filter9 xs = map fst (filter (compareSnd max) xs)
+ where
+  max = getHighestFinal xs
+
+findBusyBeavers :: [Int] -> [[Instruction]]
+findBusyBeavers [] = []
+findBusyBeavers ns = filter9 (bruteForce9 ns)
 
 -- Exercise 10
 data Rectangle = Rectangle (Int, Int) (Int, Int) deriving (Eq, Show)
