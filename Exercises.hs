@@ -144,12 +144,27 @@ classify ms = Third
 -- Exercise 5
 -- search for the local maximum of f nearest x using an
 -- approximation margin delta and initial step value s
+goldenRatio = (1 + sqrt 5)/2
 hillClimb :: (Float -> Float) -> Float -> Float -> Float -> Float
-hillClimb d x x' eps = 0.0
+hillClimb f x y tol | (b - a) <= tol = a
+                    | (f c) >= (f d) = hillClimb f a d tol
+                    | (f c) < (f d) = hillClimb f c b tol   
+ where 
+  a = min x y
+  b = max x y
+  c = a + (b-a)/(goldenRatio+1)
+  d = b - (b-a)/(goldenRatio+1)
 
 -- Exercise 6
 nearestRoot :: [Float] -> Float -> Float -> Float -> Float
-nearestRoot xs x x' eps = 0.0
+nearestRoot xs x x' eps = hillClimb (list2Polinomial xs (length xs)) x x' eps
+
+
+list2Polinomial :: [Float] -> Int -> Float -> Float
+list2Polinomial [] _ _ = 0
+list2Polinomial (x:xs) n input = result^2
+ where
+  result = x*input^( n- (length xs)-1) + (list2Polinomial xs n input )
 
 -- Exercise 7
 data Instruction = Add | Subtract | Multiply | Duplicate | Pop deriving (Eq, Show)
