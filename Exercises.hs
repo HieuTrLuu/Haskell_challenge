@@ -211,108 +211,6 @@ optimalSequence 1 = []
 
 
 -- Exercise 9
--- findBusyBeavers :: [Int] -> [[Instruction]]
--- findBusyBeavers [] = []
--- findBusyBeavers ns = mapChange bufferIns
---  where
---   bufferIns = transform9 $ reverse $ tail $ reverse ns
---   evenNegative = isEvenNegative ns
-
-change2ops :: [Int] -> [Instruction]
-change2ops xs = map (checkOps) zipList
- where
-  zipList = zip xs (tail xs)
-
---TODO: write a funcition to return the maximum value upto an index ?
-
-
---compareAddAndMul :: [Int] -> [Int]
---TODO :this return a list where op and multiply is the same
-
-
-
-isEvenNegative :: [Int] -> Bool
-isEvenNegative xs = (length $ filter (<0) xs) `mod` 2 == 0
-
-helper9 :: Int -> Bool -> Instruction
-helper9 input False
-          | input < 0 = Pop
-          | input == 0 = Duplicate --, Add
-          | input >0 = Multiply
-          -- | otherwise = []
-helper9 input True
-          | input < 0 = Multiply
-          | input == 0 = Duplicate --, Add
-          | input >0 = Multiply
-          -- | otherwise = []
---TODO: using Duplicate as the temp thing
---TODO: the case when Multiply and Add is similar
-
-transform9 :: [Int] -> [Instruction]
-transform9 [] = []
-transform9 (x:xs) = (helper9 x boo) : (transform9 xs)
- where
-   boo = isEvenNegative (x:xs)
-
-transform91 :: [Instruction] -> [Instruction]
-transform91 [] = []
-transform91 (x:xs) = (changeTemp1 x) : xs
-
-transform92 :: [Instruction] -> [Instruction]
-transform92 [] = []
-transform92 (x:xs) = (changeTemp2 x) : xs
-
-
-changeTemp1 :: Instruction -> Instruction
-changeTemp1 x | x == Duplicate = Pop
-              | otherwise = x
-
-changeTemp2 :: Instruction -> Instruction
-changeTemp2 x | x == Duplicate = Add
-              | otherwise = x
-ab :: Int -> Int
-ab x | x >=0 = x
-              | otherwise = -x
-
-checkOps :: (Int,Int) -> Instruction
-checkOps (x,y) | x == 0 = Duplicate
-               | productNum > sumNum = Multiply
-               | productNum < sumNum = Add
-               | productNum == sumNum = Duplicate --thinking
- where
-  sumNum = x + y
-  productNum = ab (x * y)
-
-mergeIns :: Int -> Instruction -> [Instruction] -> [Instruction]
-mergeIns index x ins = merge (fst tuple) (x:(tail $ snd tuple))
- where
-  tuple = splitAt index ins
-
-insList = [Pop,Duplicate, Add, Pop]
-
-change :: [Int] -> (String, [Instruction]) -> [Instruction]
-change _ ([], ins) = ins
-change [] (_, ins) = ins
-change indexs (io, ins) | (head io) == '0' = change (tail indexs) (tail io, mergeAdd)
-                        | (head io) == '1' = change (tail indexs) (tail io, mergePop)
-                        | otherwise = []
- where
-  tuples = splitAt (head indexs) ins
-  mergePop = mergeIns (head indexs) Pop ins
-  mergeAdd = mergeIns (head indexs) Add ins
-
-mapChange :: [Instruction] -> [[Instruction]]
-mapChange [] = [[]]
-mapChange xs = map (change dupList) tupleIns
- where
-  dupList = elementIndexes Duplicate xs
-  n = length dupList
-  grayList = grayGen n
-  tupleIns = zip grayList (repeat xs)
-
-grayGen :: Int -> [String]
-grayGen 0 = [""]
-grayGen n = (map ('0':)) (grayGen (n-1)) ++ (map ('1':)) (reverse (grayGen (n-1)))
 
 finalUpUntilN :: [Int] -> [Instruction] -> Int
 finalUpUntilN listInt listIns | length buffer == 1 = head buffer
@@ -354,35 +252,39 @@ merge xs     []     = xs
 merge []     ys     = ys
 merge (x:xs) (y:ys) = x : y : merge xs ys
 
--- createRectangles :: (Int, Int) -> [Rectangle]
--- createRectangles (0,_) = [Rectangle (0,0) (0,0)]
--- createRectangles (_,0) = [Rectangle (0,0) (0,0)]
--- createRectangles (a,b) = Rectangle (-a,-b) (a,b): ( merge (createRectangles (a-1,b)) (createRectangles (a,b-1)) )
---
--- finalRectangleList :: [Rectangle] -> [Rectangle]
--- finalRectangleList = Set.toList . Set.fromList
---
--- isInEclipse :: Float -> Float -> Float -> Float -> Rectangle -> Bool
--- isInEclipse x y a b (Rectangle (mx,nx) (px,qx)) | (m-x)^2 / a^2 + (n-x)^2 / b^2 > 1 = False
---                                                 | (p-x)^2 / a^2 + (q-x)^2 / b^2 > 1 = False
---                                                 | otherwise = True
---  where
---   m = fromIntegral mx
---   n = fromIntegral nx
---   p = fromIntegral px
---   q = fromIntegral qx
+createRectangles :: (Int, Int) -> [Rectangle]
+--What arguments does it takes ? (a,b)
+createRectangles (0,_) = [Rectangle (0,0) (0,0)]
+createRectangles (_,0) = [Rectangle (0,0) (0,0)]
+createRectangles (a,b) = merge [Rectangle (-a,-b) (a,b), Rectangle (-a,0) (a,0), Rectangle (0,-b) (0,b) ] ( merge (createRectangles (a-1,b)) (createRectangles (a,b-1)) )
+
+finalRectangleList :: [Rectangle] -> [Rectangle]
+--finalRectangleList = Set.toList . Set.fromList 
+--Why this method did not work ?
+finalRectangleList xs = []
+
+
+isInEclipse :: Float -> Float -> Float -> Float -> Rectangle -> Bool
+isInEclipse x y a b (Rectangle (mx,nx) (px,qx)) | (m-x)^2 / a^2 + (n-x)^2 / b^2 > 1 = False
+                                                | (p-x)^2 / a^2 + (q-x)^2 / b^2 > 1 = False
+                                                | otherwise = True
+ where
+  m = fromIntegral mx
+  n = fromIntegral nx
+  p = fromIntegral px
+  q = fromIntegral qx
 --isInEclipse :: Rectangle -> Bool
 -- TODO : finish this method than using filter to reduce the number of rectangles then use the result of ex10 to finish this
 
--- drawEllipse :: Float -> Float -> Float -> Float -> [Rectangle]
--- drawEllipse x y a b = filter (isInEclipse x y a b) list
---  where
---   ax = floor a
---   bx = floor b
---   list = finalRectangleList $ createRectangles (ax,bx)
-
 drawEllipse :: Float -> Float -> Float -> Float -> [Rectangle]
-drawEllipse x y a b = []
+drawEllipse x y a b = filter (isInEclipse x y a b) list
+ where
+  ax = floor a
+  bx = floor b
+  list = finalRectangleList $ createRectangles (ax,bx)
+
+-- drawEllipse :: Float -> Float -> Float -> Float -> [Rectangle]
+-- drawEllipse x y a b = []
 
 
 -- Exercise 12
