@@ -148,8 +148,8 @@ goldenRatio = (1 + sqrt 5)/2
 hillClimb :: (Float -> Float) -> Float -> Float -> Float -> Float
 hillClimb f x y tol | (b - a) <= tol = a
                     | (f c) >= (f d) = hillClimb f a d tol
-                    | (f c) < (f d) = hillClimb f c b tol   
- where 
+                    | (f c) < (f d) = hillClimb f c b tol
+ where
   a = min x y
   b = max x y
   c = a + (b-a)/(goldenRatio+1)
@@ -312,6 +312,12 @@ mapChange xs = map (change dupList) tupleIns
 grayGen :: Int -> [String]
 grayGen 0 = [""]
 grayGen n = (map ('0':)) (grayGen (n-1)) ++ (map ('1':)) (reverse (grayGen (n-1)))
+
+finalUpUntilN :: [Int] -> [Instruction] -> Int
+executeInstructionSequence listInt listIns | length buffer == 1 = head buffer
+                                           | otherwise = error("not correct ex 9")
+ where
+   buffer = executeInstructionSequence listInt listIns)
 
 
 
