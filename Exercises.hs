@@ -243,8 +243,112 @@ findBusyBeavers ns = filter9 (bruteForce9 ns)
 -- Exercise 10
 data Rectangle = Rectangle (Int, Int) (Int, Int) deriving (Eq, Ord, Show)
 --TODO: I have include Ord in the definition of Rectangle, need to remove it
+data Position = Position (Int, Int) deriving (Eq, Show)
+
+-- isOverlapse :: Rectangle -> Rectangle -> Bool
+-- isOverlapse x y =
+getX :: Position -> Int
+getX (Position(x,y)) = x
+
+getY :: Position -> Int
+getY (Position(x,y)) = y
+
+
+getTopRight :: Rectangle -> (Int, Int)
+getTopRight (Rectangle (a,b) (c,d)) = (c,d)
+
+getBottomLeft :: Rectangle -> (Int, Int)
+getBottomLeft (Rectangle (a,b) (c,d)) = (a,b)
+
+acceptRectangle :: Rectangle -> Bool
+acceptRectangle input = (fst $ getTopRight input) > (fst $ getBottomLeft input) && (snd $ getTopRight input) > (snd $ getBottomLeft input)
+
+isOverlapse :: Rectangle -> Rectangle -> [Rectangle]
+-- isOverlapse a b | (getTopRight a == getTopRight b) && (xa2 <= xb2) && (ya2 <= yb2)  = [a]
+--                 | (getTopRight a == getTopRight b) && (xa2 >= xb2) && (ya2 >= yb2) = [b]
+--                 | (getBottomLeft a == getBottomLeft b) && (xa1 >= xb1) && (ya1 >= yb1) = [a]
+--                 | (getBottomLeft a == getBottomLeft b) && (xa1 <= xb1) && (ya1 <= yb1) = [b]
+isOverlapse a b | (ya1 >= yb1) && (xa2 <= xb2) = [a]
+                | (ya1 <= yb1) && (xa2 >= xb2) = [b]
+                | otherwise = [a,b]
+-- isOverlapse :: Rectangle -> Rectangle -> Rectangle
+-- isOverlapse a b | (ya1 >= yb1) && (xa2 <= xb2) = a
+--                 | (ya1 <= yb1) && (xa2 >= xb2) = b
+ where
+  -- xa2 = fst $ getBottomLeft a
+  -- xb2 = fst $ getBottomLeft b
+  -- ya1 = snd $ getTopRight a
+  -- yb1 = snd $ getTopRight b
+  xa1 = fst $ getTopRight a
+  xb1 = fst $ getTopRight b
+  xa2 = fst $ getBottomLeft a
+  xb2 = fst $ getBottomLeft b
+  ya1 = snd $ getTopRight a
+  yb1 = snd $ getTopRight b
+  ya2 = snd $ getBottomLeft a
+  yb2 = snd $ getBottomLeft b
+
+a = Rectangle (10, 10) (0,0)
+b = Rectangle (20, 10) (10,0)
+test = isOverlapse a b
+
+c = Rectangle (20, 20) (0,0)
+d = Rectangle (20, 20) (10,10)
+test2 = isOverlapse c
+
+e = Rectangle (20, 10) (5,0)
+f = Rectangle (10, 10) (0,0)
+test3 = isCombined e f
+
+isCombined :: Rectangle -> Rectangle -> [Rectangle]
+isCombined a b
+ | (ya1 == yb1) && (ya2 == yb2) && (xa1 > xb1) = [Rectangle (xa1, ya1) (xb2, yb2)]
+ | (ya1 == yb1) && (ya2 == yb2) && (xa1 < xb1) = [Rectangle (xb1, ya1) (xa2, yb2)]
+ | (xa1 == xa2) && (xa2 == xb2) && (ya1 > yb1) = [Rectangle (xa1, ya1) (xb2, yb2)]
+ | (xa1 == xa2) && (xa2 == xb2) && (ya1 < yb1) = [Rectangle (xb1, yb1) (xa2, ya2)]
+ | otherwise = [a,b]
+  where
+    xa1 = fst $ getTopRight a
+    xb1 = fst $ getTopRight b
+    xa2 = fst $ getBottomLeft a
+    xb2 = fst $ getBottomLeft b
+    ya1 = snd $ getTopRight a
+    yb1 = snd $ getTopRight b
+    ya2 = snd $ getBottomLeft a
+    yb2 = snd $ getBottomLeft b
+
+-- testCombined = isCombined a b
+
+getCentre :: Rectangle -> Position
+getCentre rectangle = Position (x,y)
+ where
+  x = ((fst $ getBottomLeft rectangle) + (fst $ getTopRight rectangle)) `div` 2
+  y = ((snd $ getBottomLeft rectangle) + (snd $ getTopRight rectangle)) `div` 2
+
+getCentreList :: [Rectangle] -> [Position]
+getCentreList (x:xs) = getCentre x : (getCentreList xs)
+
+compareXcentre :: Rectangle -> Rectangle -> Ordering
+compareXcentre a b = compare (getX $ getCentre a) (getX $ getCentre b)
+
+compareYcentre :: Rectangle -> Rectangle -> Ordering
+compareYcentre a b = compare (getY $ getCentre a) (getY $ getCentre b)
+
+sortedList = sortBy (compareXcentre ) [Rectangle (0,0) (2,2), Rectangle (0,0) (10,10)]
+
+checkCombined :: [Rectangle] -> [Rectangle]
+checkCombined list = list2Set $ [ head $ isCombined x y| x<-list, y<-list,x/=y ]
+--TODO : checkCombined is incorrect !!!
+
+checkOverlapse :: [Rectangle] -> [Rectangle]
+checkOverlapse list = list2Set $ [ head $ isOverlapse x y| x<-list, y<-list,x/=y ]
+
 simplifyRectangleList :: [Rectangle] -> [Rectangle]
-simplifyRectangleList rs = []
+-- TODO: do i check overlapse first or combine first ?
+simplifyRectangleList list = checkOverlapse $ checkCombined list
+
+list2Set :: Ord a => [a] -> [a]
+list2Set list = Set.toList $ Set.fromList list
 
 -- Exercise 11
 -- convert an ellipse into a minimal list of rectangles representing its image
@@ -259,10 +363,6 @@ createRectangles (0,_) = [Rectangle (0,0) (0,0)]
 createRectangles (_,0) = [Rectangle (0,0) (0,0)]
 createRectangles (a,b) = merge [Rectangle (-a,-b) (a,b), Rectangle (-a,0) (a,0), Rectangle (0,-b) (0,b) ] ( merge (createRectangles (a-1,b)) (createRectangles (a,b-1)) )
 
-finalRectangleList :: [Rectangle] -> [Rectangle]
-finalRectangleList = Set.toList . Set.fromList 
---Why this method did not work ?
-
 
 isInEclipse :: Float -> Float -> Float -> Float -> Rectangle -> Bool
 isInEclipse x y a b (Rectangle (mx,nx) (px,qx)) | (m-x)^2 / a^2 + (n-x)^2 / b^2 > 1 = False
@@ -273,16 +373,14 @@ isInEclipse x y a b (Rectangle (mx,nx) (px,qx)) | (m-x)^2 / a^2 + (n-x)^2 / b^2 
   n = fromIntegral nx
   p = fromIntegral px
   q = fromIntegral qx
--- TODO : finish this method than using filter to reduce the number of rectangles then use the result of ex10 to finish this
+-- TODO: might have to use isCombined and isOverlapse from ex10
 
 drawEllipse :: Float -> Float -> Float -> Float -> [Rectangle]
 drawEllipse x y a b = filter (isInEclipse x y a b) list
  where
   ax = floor a
   bx = floor b
-  list = finalRectangleList $ createRectangles (ax,bx)
-
-
+  list = list2Set $ checkOverlapse $ createRectangles (ax,bx)
 
 -- Exercise 12
 -- extract a message hidden using a simple steganography technique
