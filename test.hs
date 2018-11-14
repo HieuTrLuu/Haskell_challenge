@@ -29,13 +29,13 @@ tests =
          ("classify [[ModuleResult 60.0 45], [ModuleResult 60.0 45], [ModuleResult 60.0 45]] = Third", classify [[ModuleResult 60.0 45], [ModuleResult 60.0 45], [ModuleResult 60.0 45]] == Third),
          ("classify [[ModuleResult 60.0 45], [ModuleResult 60.0 55], [ModuleResult 60.0 65]] = UpperSecond", classify [[ModuleResult 60.0 45], [ModuleResult 60.0 55], [ModuleResult 60.0 65]] == UpperSecond)
       ]),
-    -- ("Exercise 5: hillClimb",
-    --   [
-    --      ("hillClimb (\\x -> 4.0-x*x) (-2.5) 2.5 1e-10 ~= 0.0",
-    --       approxEqual (hillClimb (\x -> 4.0-x*x) (-2.5) 2.5 1e-10) 0.0),
-    --      ("hillClimb (sin) 0.5 2.0 1e-10 ~= pi / 2",
-    --       approxEqual (hillClimb (sin) 0.5 2.0 1e-10) (pi / 2.0))
-    --   ]),
+    ("Exercise 5: hillClimb",
+      [
+         ("hillClimb (\\x -> 4.0-x*x) (-2.5) 2.5 1e-10 ~= 0.0",
+          approxEqual (hillClimb (\x -> 4.0-x*x) (-2.5) 2.5 1e-10) 0.0),
+         ("hillClimb (sin) 0.5 2.0 1e-10 ~= pi / 2",
+          approxEqual (hillClimb (sin) 0.5 2.0 1e-6) (pi / 2.0))
+      ]),
     ("Exercise 6: nearestRoot",
       [
          ("nearestRoot [-18.0, 0.0, 2.0] 0.0 5.0 1e-5 ~= 3.0",

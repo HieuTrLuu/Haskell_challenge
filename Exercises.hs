@@ -74,17 +74,7 @@ splitEQ = foldr f []
 -- Exercise 2
 -- longest common sub-list of a finite list of finite list
 lcs :: Eq a => [a] -> [a] -> [a]
-lcs xs ys = snd $ lcs' xs ys
-
-lcs' :: Eq a => [a] -> [a] -> (Int, [a])
-lcs' (x:xs) (y:ys)
- | x == y = case lcs' xs ys of
-                (len, zs) -> (len + 1, x:zs)
- | otherwise = let r1@(l1, _) = lcs' (x:xs) ys
-                   r2@(l2, _) = lcs' xs (y:ys)
-               in if l1 >= l2 then r1 else r2
-lcs' [] _ = (0, [])
-lcs' _ [] = (0, [])
+lcs l1 l2 = Data.List.intersect l1 l2
 
 helper :: Eq a => [[a]] -> [[a]]
 helper xs = [lcs lists1 lists2 | lists1 <- xs, lists2 <- xs, lists1/=lists2]
@@ -185,6 +175,11 @@ hillClimb :: (Float -> Float) -> Float -> Float -> Float -> Float
 hillClimb f x y tol | (b - a) <= tol = a
                     | (f c) >= (f d) = hillClimb f a d tol
                     | (f c) < (f d) = hillClimb f c b tol
+                    
+                    -- | f 1 > f 2 && (f c) >= (f d) = hillClimb f a d tol
+                    -- | f 1 > f 2 && (f c) < (f d) = hillClimb f c b tol
+                    -- | f 1 < f 2 && (f c) >= (f d) = hillClimb' f a d tol
+                    -- | f 1 < f 2 && (f c) < (f d) = hillClimb' f c b tol
  where
   a = min x y
   b = max x y
@@ -298,7 +293,7 @@ getHighestFinal xs = maximum [snd x | x<-xs ]
 compareSnd :: Int -> (a,Int) -> Bool
 compareSnd max (x,num) = (max == num)
 
-filter9 :: [([Instruction],Int)] -> [[Instruction]]--[([Instruction],Int)]
+filter9 :: [([Instruction],Int)] -> [[Instruction]]
 filter9 xs = map fst (filter (compareSnd max) xs)
  where
   max = getHighestFinal xs
@@ -331,21 +326,10 @@ acceptRectangle :: Rectangle -> Bool
 acceptRectangle input = (fst $ getTopRight input) > (fst $ getBottomLeft input) && (snd $ getTopRight input) > (snd $ getBottomLeft input)
 
 isOverlapse :: Rectangle -> Rectangle -> [Rectangle]
--- isOverlapse a b | (getTopRight a == getTopRight b) && (xa2 <= xb2) && (ya2 <= yb2)  = [a]
---                 | (getTopRight a == getTopRight b) && (xa2 >= xb2) && (ya2 >= yb2) = [b]
---                 | (getBottomLeft a == getBottomLeft b) && (xa1 >= xb1) && (ya1 >= yb1) = [a]
---                 | (getBottomLeft a == getBottomLeft b) && (xa1 <= xb1) && (ya1 <= yb1) = [b]
 isOverlapse a b | (ya1 >= yb1) && (xa2 <= xb2) = [a]
                 | (ya1 <= yb1) && (xa2 >= xb2) = [b]
                 | otherwise = [a,b]
--- isOverlapse :: Rectangle -> Rectangle -> Rectangle
--- isOverlapse a b | (ya1 >= yb1) && (xa2 <= xb2) = a
---                 | (ya1 <= yb1) && (xa2 >= xb2) = b
  where
-  -- xa2 = fst $ getBottomLeft a
-  -- xb2 = fst $ getBottomLeft b
-  -- ya1 = snd $ getTopRight a
-  -- yb1 = snd $ getTopRight b
   xa1 = fst $ getTopRight a
   xb1 = fst $ getTopRight b
   xa2 = fst $ getBottomLeft a
@@ -516,8 +500,5 @@ isShellTreeSum n = (sum $ tail $ listOfNode n) == snd (unPair n)
 
 -- TODO∷
 -- 1. rename and comment
--- 8. check ex3, ex4, ex5, ex15
--- ex5 does not load ?
--- some exercises get wrong 5 ???
--- why is isShellTreeSum 60 is true ?
--- need to rethink about 2 because of lcs
+-- 8. check ex3, ex4, ex15
+-- ex5 does load at tol = 1e-6 not smaller
