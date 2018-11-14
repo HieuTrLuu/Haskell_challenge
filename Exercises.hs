@@ -488,3 +488,4 @@ isShellTreeSum n = (sum $ tail $ listOfNode n) == snd (unPair n)
 -- 8. check ex3, ex4, ex5, ex15
 -- ex5 does not load ?
 -- some exercises get wrong (1,2) ???
+-- check some of the case in the test ?, why is it wrong ?
