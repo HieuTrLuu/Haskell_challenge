@@ -39,6 +39,7 @@ boolTransform :: [(Ordering,Ordering)] -> [Bool]
 boolTransform a = [ x==y | (x,y) <- a]
 
 splitSort :: [Int] -> [[Int]]
+splitSort [] =[]
 splitSort ns = customListSplit (reverse truePlaces) ns
  where tupleNumber = zip ns (tail ns)
        tupleOrd = zip (orderList tupleNumber) (tail (orderList tupleNumber))
@@ -80,6 +81,7 @@ lsort = sortBy (comparing length)
 
 
 longestCommonSubList :: Eq a => [[a]] -> [a]
+longestCommonSubList [] = []
 longestCommonSubList [[]] = []
 longestCommonSubList input = head (helper2 common input)
  where
@@ -440,7 +442,14 @@ decoded "11" = 'd'
 -- return a stream which is different from all streams of the given stream
 -- you may choose to use Cantor's diagonal method
 differentStream :: [[Int]] -> [Int]
-differentStream ss = []
+differentStream ss = [ (recurseHead (snd x) (fst x) +1 )|x<-buffer]
+ where
+  buffer = zip [0..] ss
+
+recurseHead :: [Int] -> Int -> Int
+recurseHead [] _ = error "empty list"
+recurseHead ss 0 = head ss
+recurseHead ss n = recurseHead (tail ss) (n-1)
 
 -- Exercise 14
 -- extract both components from a square shell pair and apply the (curried) function
@@ -472,7 +481,6 @@ isShellTreeSum n = (sum $ tail $ listOfNode n) == snd (unPair n)
 -- 1. rename and comment
 -- 5. understand why it can't find the maximum point ?
 -- 6. do ex13
--- 7. do ex9
--- 8. check ex3, ex4, ex5, ex6, ex15
--- 9. do ex5
--- 10. Ask the demonstrator about the test of ex11
+-- 8. check ex3, ex4, ex5, ex15
+-- ex5 does not load ?
+-- some exercises get wrong (1,2) ???
