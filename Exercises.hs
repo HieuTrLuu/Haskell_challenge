@@ -141,8 +141,25 @@ canProgress list | (yearPass list) && (isEnoughCredit list)  == True = True
 -- compute the degree classification associate with 3 or 4 year's worth of results
 -- using the regulations given in the University of Southampton Calendar
 data DegreeClass = First | UpperSecond | LowerSecond | Third deriving (Eq, Show)
+calculateDegree :: [[ModuleResult]] -> Int -> Int
+--calculateDegree (x:xs) 3 = ( (averageMark $ head xs) + (averageMark ( head $ tail xs) * 2) ) `div` 3
+--calculateDegree (x:xs) 4 = ( averageMark $ head xs + averageMark $ head $ tail xs * 2 + averageMark $ head $ tail $ tail xs * 2 ) `div` 5
+calculateDegree (x:xs) 3 =  ((averageMark $ head xs) + (averageMark $ head $ tail xs )* 2) `div` 3
+calculateDegree (x:xs) 4 =  ((averageMark $ head xs) + (averageMark $ head $ tail xs )* 2 + (averageMark $ head $ tail $ tail xs )* 2) `div` 5
+ where
+  yearThree = averageMark $ head $ tail xs
+  yearFour = averageMark $ head $ tail $ tail xs
+
+-- TODO: find out why the where here did not work and refactor the code
+
 classify :: [[ModuleResult]] -> DegreeClass
-classify ms = Third
+classify ms | averageMark >= 70 = First
+            | averageMark >= 60 = UpperSecond
+            | averageMark >= 50 = LowerSecond
+            | averageMark >= 40 = Third
+ where
+   averageMark = calculateDegree ms (length ms)
+
 
 -- Exercise 5
 -- search for the local maximum of f nearest x using an
@@ -487,5 +504,5 @@ isShellTreeSum n = (sum $ tail $ listOfNode n) == snd (unPair n)
 -- 6. do ex13
 -- 8. check ex3, ex4, ex5, ex15
 -- ex5 does not load ?
--- some exercises get wrong (1,2) ???
--- check some of the case in the test ?, why is it wrong ?
+-- some exercises get wrong (1,5) ???
+-- why is isShellTreeSum 60 is true ?

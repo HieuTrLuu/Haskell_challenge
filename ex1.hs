@@ -1,9 +1,3 @@
-
--- Exercise 1
--- split a given list into sub-lists
--- each of these must be strictly ascending, descending, or equal
-
---HELPER function
 import Data.List.Split
 
 positions :: Eq a => a -> [a] -> [Int]
@@ -25,7 +19,7 @@ splitSort ns = customListSplit (reverse truePlaces) ns
  where tupleNumber = zip ns (tail ns)
        tupleOrd = zip (orderList tupleNumber) (tail (orderList tupleNumber))
        oneDown = positions False (boolTransform tupleOrd)
-       truePlaces = [ x+2 | x <- oneDown ]
+       truePlaces = [ x + 2 | x <- oneDown ]
 
 test = [1,2,3,2,1,1,1]
 test1 = zip test (tail test)
@@ -44,8 +38,10 @@ customListSplit (x:indexes) list = firstElt:(customListSplit indexes secondElt)
   secondElt = snd tuple
 
 
+-- changeIndexes :: [Int] -> Int -> [Int]
+-- changeIndexes indexs length = foldr   
 
-
+-- TODO: use foldr to write the helper function and splitAt to finish the ex
 
 
 -- NEED to fix the syntax of where
