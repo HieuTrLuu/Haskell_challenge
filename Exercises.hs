@@ -30,7 +30,7 @@ import Control.Monad
 -- each of these must be strictly ascending, descending, or equal
 elementIndexes :: Eq a => a -> [a] -> [Int]
 elementIndexes x [] = []
-elementIndexes x xs = [ index | (y, index) <- zip xs [0..], x==y]
+elementIndexes x xs = [ index| (y, index) <- zip xs [0..], x==y]
 
 orderList :: Ord a => [(a,a)] -> [Ordering]
 orderList a = [ compare x y | (x,y) <- a  ]
@@ -40,7 +40,7 @@ boolTransform a = [ x==y | (x,y) <- a]
 
 splitSort :: [Int] -> [[Int]]
 splitSort [] =[]
-splitSort ns = customListSplit (reverse truePlaces) ns
+splitSort ns = customListSplit (truePlaces) ns
  where tupleNumber = zip ns (tail ns)
        tupleOrd = zip (orderList tupleNumber) (tail (orderList tupleNumber))
        oneDown = elementIndexes False (boolTransform tupleOrd)
@@ -48,13 +48,11 @@ splitSort ns = customListSplit (reverse truePlaces) ns
 
 
 customListSplit :: [Int] -> [Int] -> [[Int]]
-customListSplit _ [] = [[]]
-customListSplit (x:indexes) list = firstElt:(customListSplit indexes secondElt)
- where
-  tuple = splitAt x list
-  firstElt = fst tuple
-  secondElt = snd tuple
-
+customListSplit [] list = [list]
+customListSplit indexs list = reverse ((snd tuple):(customListSplit (reverse $ tail reverseIndexs) (fst tuple)))
+  where
+    reverseIndexs = reverse indexs
+    tuple = splitAt (head reverseIndexs) list
 -- Exercise 2
 -- longest common sub-list of a finite list of finite list
 lcs :: Eq a => [a] -> [a] -> [a]

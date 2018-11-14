@@ -29,15 +29,19 @@ test4 = boolTransform test3
 test5 = [ x+2 | x <- (positions False test4)]
 
 customListSplit :: [Int] -> [Int] -> [[Int]]
---customListSplit [] _ = [ _ ]
-customListSplit _ [] = [[]]
-customListSplit (x:indexes) list = firstElt:(customListSplit indexes secondElt)
+customListSplit [] list = [list]
+customListSplit indexs list = reverse ((snd tuple):(customListSplit (reverse $ tail reverseIndexs) (fst tuple)))
  where
-  tuple = splitAt x list
-  firstElt = fst tuple
-  secondElt = snd tuple
+  reverseIndexs = reverse indexs
+  tuple = splitAt (head reverseIndexs) list
 
 
+
+
+  merge :: [a] -> [a] -> [a]
+  merge xs     []     = xs
+  merge []     ys     = ys
+  merge (x:xs) (y:ys) = x : y : merge xs ys
 -- changeIndexes :: [Int] -> Int -> [Int]
 -- changeIndexes indexs length = foldr   
 
