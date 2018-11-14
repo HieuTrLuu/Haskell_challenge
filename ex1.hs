@@ -21,7 +21,7 @@ splitSort ns = customListSplit (reverse truePlaces) ns
        oneDown = positions False (boolTransform tupleOrd)
        truePlaces = [ x + 2 | x <- oneDown ]
 
-test = [1,2,3,2,1,1,1]
+test = [1,2,3,2,1,1,1,4,5,6,7,8,8,8,8,8,1,2,5,2,3,4,6,7,8]
 test1 = zip test (tail test)
 test2 = orderList test1
 test3 = zip test2 (tail test2)

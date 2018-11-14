@@ -28,31 +28,49 @@ import Control.Monad
 -- Exercise 1
 -- split a given list into sub-lists
 -- each of these must be strictly ascending, descending, or equal
-elementIndexes :: Eq a => a -> [a] -> [Int]
-elementIndexes x [] = []
-elementIndexes x xs = [ index| (y, index) <- zip xs [0..], x==y]
-
-orderList :: Ord a => [(a,a)] -> [Ordering]
-orderList a = [ compare x y | (x,y) <- a  ]
-
-boolTransform :: [(Ordering,Ordering)] -> [Bool]
-boolTransform a = [ x==y | (x,y) <- a]
 
 splitSort :: [Int] -> [[Int]]
-splitSort [] =[]
-splitSort ns = customListSplit (truePlaces) ns
- where tupleNumber = zip ns (tail ns)
-       tupleOrd = zip (orderList tupleNumber) (tail (orderList tupleNumber))
-       oneDown = elementIndexes False (boolTransform tupleOrd)
-       truePlaces = [ x+2 | x <- oneDown ]
+splitSort [] = []
+splitSort xs | (length $ head asc) >1 = (head asc):splitSort (snd (splitAt (length $ head asc) xs))
+             | (length $ head des) >1 = (head des):splitSort (snd (splitAt (length $ head des) xs))
+             | (length $ head eq)  >1 = (head eq ):splitSort (snd (splitAt (length $ head eq ) xs))
+             | otherwise = [(head xs)]:(splitSort $ tail xs)
+ where
+  asc = splitAsc xs
+  des = splitDes xs
+  eq = splitEQ xs
+
+positions :: Eq a => a -> [a] -> [Int]
+positions x xs = [ index | (y, index) <- zip xs [0..], x==y]
+
+splitDes :: [Int] -> [[Int]]
+splitDes = foldr f [] 
+ where
+  f x [] = [[x]]
+  f x (y:ys) = if x > head y
+      then (x:y):ys -- prepend x to the first list in the summary value
+      else [x]:y:ys -- prepend the new list [x] to the summary value
 
 
-customListSplit :: [Int] -> [Int] -> [[Int]]
-customListSplit [] list = [list]
-customListSplit indexs list = reverse ((snd tuple):(customListSplit (reverse $ tail reverseIndexs) (fst tuple)))
-  where
-    reverseIndexs = reverse indexs
-    tuple = splitAt (head reverseIndexs) list
+splitAsc :: [Int] -> [[Int]]
+splitAsc = foldr f [] 
+ where
+  f x [] = [[x]]
+  f x (y:ys) = if x < head y
+      then (x:y):ys -- prepend x to the first list in the summary value
+      else [x]:y:ys -- prepend the new list [x] to the summary value
+
+splitEQ :: [Int] -> [[Int]]
+splitEQ = foldr f [] 
+ where
+  f x [] = [[x]]
+  f x (y:ys) = if x == head y
+      then (x:y):ys -- prepend x to the first list in the summary value
+      else [x]:y:ys -- prepend the new list [x] to the summary value
+
+-- transformList1 :: [[Int]] -> [[Int]]
+-- transformList1 xs = [ |x<-xs]
+
 -- Exercise 2
 -- longest common sub-list of a finite list of finite list
 lcs :: Eq a => [a] -> [a] -> [a]
@@ -498,9 +516,8 @@ isShellTreeSum n = (sum $ tail $ listOfNode n) == snd (unPair n)
 
 -- TODO∷
 -- 1. rename and comment
--- 5. understand why it can't find the maximum point ?
--- 6. do ex13
 -- 8. check ex3, ex4, ex5, ex15
 -- ex5 does not load ?
--- some exercises get wrong (1,5) ???
+-- some exercises get wrong 5 ???
 -- why is isShellTreeSum 60 is true ?
+-- need to rethink about 2 because of lcs
