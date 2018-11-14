@@ -158,15 +158,43 @@ hillClimb f x y tol | (b - a) <= tol = a
 
 -- Exercise 6
 nearestRoot :: [Float] -> Float -> Float -> Float -> Float
-nearestRoot xs x x' eps = hillClimb (list2Polinomial xs (length xs)) x x' eps
-
+nearestRoot xs x x' eps = hillClimb' f x x' eps
+ where
+  f = (^2) . (list2Polinomial xs (length xs))
 
 list2Polinomial :: [Float] -> Int -> Float -> Float
 list2Polinomial [] _ _ = 0
-list2Polinomial (x:xs) n input = result^2
+list2Polinomial (x:xs) n input = result
  where
-  result = x*input^( n- (length xs)-1) + (list2Polinomial xs n input )
+  result = x*input^( n- (length xs)) + (list2Polinomial xs n input )
 
+invphi = (sqrt(5) - 1) / 2 -- 1/phi
+invphi2 = (3 - sqrt(5)) / 2 -- 1/phi^2
+
+gssRecursive :: (Float -> Float) -> Float -> Float -> Float -> Float -> Float -> Float -> Float -> Float -> Float
+gssRecursive f x y tol h c d fc fd | h <= tol = a
+                                   | fc < fd = gssRecursive f a d tol (h*invphi) (a + invphi2*h) c (f c) fc
+                                   | otherwise = gssRecursive f c b tol (h*invphi) d (a + invphi*h) fd (f d)
+ where
+  a = (min x y)
+  b = (max x y)
+  h = b-a
+  c = a + h*invphi2
+  d = a + h*invphi
+  fc = f c
+  fd = f d
+  
+hillClimb' :: (Float -> Float) -> Float -> Float -> Float -> Float
+hillClimb' f x y tol = gssRecursive f a b tol h c d fc fd
+ where
+     a = (min x y)
+     b = (max x y)
+     h = b-a -- b is max, a is min
+     c = a + h*invphi2
+     d = a + h*invphi
+     fc = f c
+     fd = f d
+  
 -- Exercise 7
 data Instruction = Add | Subtract | Multiply | Duplicate | Pop deriving (Eq, Show)
 -- data InstructionTemp = Add | Pop deriving (Eq, Show)
