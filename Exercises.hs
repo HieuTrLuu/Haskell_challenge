@@ -199,7 +199,6 @@ hillClimb' f x y tol = gssRecursive f a b tol h c d fc fd
   
 -- Exercise 7
 data Instruction = Add | Subtract | Multiply | Duplicate | Pop deriving (Eq, Show)
--- data InstructionTemp = Add | Pop deriving (Eq, Show)
 
 executeOperations :: [Int] -> Instruction -> [Int]
 executeOperations [] _ = []
@@ -218,28 +217,33 @@ executeInstructionSequence list (x:xs) = executeInstructionSequence (executeOper
 -- Exercise 8
 log2 :: Int -> Int
 log2 n
-    | n < 1     = error "agument of logarithm must be positive"
+    | n < 1     = error "argument of logarithm must be positive"
     | otherwise = go 0 1
       where
         go exponent prod
             | prod < n  = go (exponent + 1) (2*prod)
             | otherwise = exponent
 
-non2 :: Int -> Int
-non2 n | upperDistance < lowerDistance = upperDistance
-       | upperDistance > lowerDistance = lowerDistance
+non2 :: Int -> (Int,Int)
+non2 n | upperDistance <= lowerDistance = (log2 n , upperDistance )
+       | upperDistance > lowerDistance = ((log2 n) - 1, lowerDistance )
  where upperDistance = 2^(log2 n) - n
        lowerDistance = n - 2^((log2 n) - 1)
+
+-- non2 return a tuple of (fst ,snd )
+-- where fst is the "closest power of 2 to the variable" and snd is the remainder
 
 
 
 
 optimalSequence :: Int -> [Instruction]
+optimalSequence 0 = [Pop]
 optimalSequence 1 = []
-
-
-
-
+optimalSequence n = concat [top , mid, bot]
+ where
+  top = concat $ replicate  (snd $ non2 n) [Duplicate]
+  mid = concat $ replicate  (fst $ non2 n) [Duplicate, Multiply]
+  bot = concat $ replicate  (snd $ non2 n) [Multiply]
 -- Exercise 9
 
 finalUpUntilN :: [Int] -> [Instruction] -> Int
