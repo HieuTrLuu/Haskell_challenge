@@ -308,7 +308,7 @@ findBusyBeavers [] = []
 findBusyBeavers ns = filter9 (bruteForce9 ns)
 
 -- Exercise 10
-data Rectangle = Rectangle (Int, Int) (Int, Int) deriving (Eq, Ord, Show)
+data Rectangle = Rectangle (Int, Int) (Int, Int) deriving (Eq, Show)
 --TODO: I have include Ord in the definition of Rectangle, need to remove it
 data Position = Position (Int, Int) deriving (Eq, Show)
 
@@ -403,8 +403,9 @@ simplifyRectangleList :: [Rectangle] -> [Rectangle]
 -- TODO: do i check overlapse first or combine first ?
 simplifyRectangleList list = checkOverlapse $ checkCombined list
 
-list2Set :: Ord a => [a] -> [a]
-list2Set list = Set.toList $ Set.fromList list
+list2Set :: Eq a => [a] -> [a]
+-- list2Set list = Set.toList $ Set.fromList list
+list2Set list = Set.toList $ Set.fromAscList list
 
 -- Exercise 11
 -- convert an ellipse into a minimal list of rectangles representing its image
