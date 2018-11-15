@@ -73,35 +73,47 @@ splitEQ = foldr f []
 
 -- Exercise 2
 -- longest common sub-list of a finite list of finite list
-
 -- function that get longest common sublist between 2 list
 lcs :: Eq a => [a] -> [a] -> [a]
-lcs l1 l2 = Data.List.intersect l1 l2
---TODO: incorrect
--- longestCommonSubList [[1,2,3,4,5,1,1], [0,1,3,4,1,1,1,1,1,1,1], [1,3,41,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1]]
+lcs xs ys = snd $ lcs' xs ys
 
--- helper :: Eq a => [[a]] -> [[a]]
--- helper xs = [lcs lists1 lists2 | lists1 <- xs, lists2 <- xs, lists1/=lists2]
+lcs' :: Eq a => [a] -> [a] -> (Int, [a])
+lcs' (x:xs) (y:ys)
+ | x == y = case lcs' xs ys of
+                (len, zs) -> (len + 1, x:zs)
+ | otherwise = let r1@(l1, _) = lcs' (x:xs) ys
+                   r2@(l2, _) = lcs' xs (y:ys)
+               in if l1 >= l2 then r1 else r2
+lcs' [] _ = (0, [])
+lcs' _ [] = (0, [])
+
+-- method lcs and lcs' is taken from this website http://hackage.haskell.org/package/lcs
+-- the idea of the implmentation of this exercises is checking common sublist between every 2 sublist
+-- confirm that the list of sublist we get belong to every sublist in the initial list then the output is the longest list that we are processing
 
 
 helper2 :: Eq a => [[a]] -> [[a]] -> [Bool]
 helper2 xs input = [and (map (\x -> (lcs common x) == common) input) | common <- xs]
 
-getEltAt :: Int -> [Int] -> Int
+lsort :: [[a]] -> [[a]]
+lsort = sortBy (comparing length)
+
+getEltAt :: Int -> [a] -> a
 getEltAt index list = head (snd $ splitAt index list)
 
--- lsort :: [[a]] -> [[a]]
--- lsort = sortBy (comparing length)
+helper :: Eq a => [[a]] -> [[a]]
+helper xs = [lcs lists1 lists2 | lists1 <- xs, lists2 <- xs, lists1/=lists2]
+
 
 longestCommonSubList :: Eq a => [[a]] -> [a]
 longestCommonSubList [] = []
 longestCommonSubList [[]] = []
 longestCommonSubList input = getEltAt index common
  where
-  common = reverse (lsort (helper input))
-  helper xs = losrt [lcs lists1 lists2 | lists1 <- xs, lists2 <- xs, lists1/=lists2]
+  common = (lsort (helper input))
+  helper xs = lsort [lcs lists1 lists2 | lists1 <- xs, lists2 <- xs, lists1/=lists2]
   lsort = sortBy (comparing length)
-  index = head $ position True (helper2 common input)
+  index = head $ positions True (helper2 common input)
 
 -- Exercise 3
 -- check whether the given results are sufficient to pass the year
@@ -116,21 +128,22 @@ isEnoughCredit xs = totalcredit >= 60
 --enoughCredit :: [ModuleResult] -> Bool
 --enoughCredit xs = foldr (+) 0
 
-isPass :: ModuleResult -> Bool
-isPass result | mark result >= 40 = True
-              | otherwise = False
+gt40 :: ModuleResult -> Bool
+gt40 result | mark result >= 40 = True
+            | otherwise = False
 
-isQualify :: ModuleResult -> Bool
-isQualify result | mark result >= 25 = True
-                 | otherwise = False
+gt25 :: ModuleResult -> Bool
+gt25 result | mark result >= 25 = True
+            | otherwise = False
 
 yearPass :: [ModuleResult] -> Bool
-yearPass [] = True
-yearPass (x:xs) = (isPass x) && (yearPass xs)
+-- yearPass [] = True
+-- yearPass (x:xs) = (gt40 x) && (yearPass xs)
+yearPass list = and (filter (\x -> (mark x >= 40)) list)
 
 yearQualify :: [ModuleResult] -> Bool
 yearQualify [] = False
-yearQualify (x:xs) = (isQualify x) && (yearQualify xs)
+yearQualify (x:xs) = (gt25 x) && (yearQualify xs)
 
 isEnoughCompensate :: Bool -> [ModuleResult] -> Bool
 isEnoughCompensate False [] = False
@@ -505,6 +518,5 @@ isShellTreeSum :: Int -> Bool
 isShellTreeSum n = (sum $ tail $ listOfNode n) == snd (unPair n)
 
 -- TODO∷
--- 1. rename and comment
--- 8. check ex3, ex4, ex15
+-- 8. check ex3,  ex15
 -- ex5 does load at tol = 1e-6 not smaller
