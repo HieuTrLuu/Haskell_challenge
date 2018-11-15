@@ -415,7 +415,8 @@ merge []     ys     = ys
 merge (x:xs) (y:ys) = x : y : merge xs ys
 
 createRectangles :: (Int, Int) -> [Rectangle]
---What arguments does it takes ? (a,b)
+--arguments are a,b from the elipse equation
+--the function create multiple smaller rectangle with numbers a,b
 createRectangles (0,_) = [Rectangle (0,0) (0,0)]
 createRectangles (_,0) = [Rectangle (0,0) (0,0)]
 createRectangles (a,b) = merge [Rectangle (-a,-b) (a,b), Rectangle (-a,0) (a,0), Rectangle (0,-b) (0,b) ] ( merge (createRectangles (a-1,b)) (createRectangles (a,b-1)) )
