@@ -421,6 +421,9 @@ createRectangles (0,_) = [Rectangle (0,0) (0,0)]
 createRectangles (_,0) = [Rectangle (0,0) (0,0)]
 createRectangles (a,b) = merge [Rectangle (-a,-b) (a,b), Rectangle (-a,0) (a,0), Rectangle (0,-b) (0,b) ] ( merge (createRectangles (a-1,b)) (createRectangles (a,b-1)) )
 
+checkOverlapse' :: [Rectangle] -> [Rectangle]
+checkOverlapse' list = list2Set $ [ head $ isOverlapse x y| x<-list, y<-list ]
+
 
 isInEclipse :: Float -> Float -> Float -> Float -> Rectangle -> Bool
 isInEclipse x y a b (Rectangle (mx,nx) (px,qx)) | (m-x)^2 / a^2 + (n-x)^2 / b^2 > 1 = False
@@ -438,7 +441,7 @@ drawEllipse x y a b = filter (isInEclipse x y a b) list
  where
   ax = floor a
   bx = floor b
-  list = list2Set $ checkOverlapse $ createRectangles (ax,bx)
+  list = list2Set $ checkOverlapse' $ createRectangles (ax,bx)
 
 -- Exercise 12
 -- extract a message hidden using a simple steganography technique
@@ -470,16 +473,22 @@ decoded "11" = 'd'
 -- Exercise 13
 -- return a stream which is different from all streams of the given stream
 -- you may choose to use Cantor's diagonal method
---TODO: at the moment, the output of this stream is not binary
+
 differentStream :: [[Int]] -> [Int]
-differentStream ss = [ (recurseHead (snd x) (fst x) +1 )|x<-buffer]
+differentStream ss = [ toBinary (recurseHead (snd x) (fst x) +1 )|x<-buffer]
  where
   buffer = zip [0..] ss
 
+--given a list and an int -> get the int element of the list
 recurseHead :: [Int] -> Int -> Int
 recurseHead [] _ = error "empty list"
 recurseHead ss 0 = head ss
 recurseHead ss n = recurseHead (tail ss) (n-1)
+
+toBinary :: Int -> Int
+toBinary 1 = 0
+toBinary 0 = 1
+toBinary s = 1
 
 -- Exercise 14
 -- extract both components from a square shell pair and apply the (curried) function
