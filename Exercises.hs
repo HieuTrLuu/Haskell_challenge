@@ -128,22 +128,11 @@ isEnoughCredit xs = totalcredit >= 60
 --enoughCredit :: [ModuleResult] -> Bool
 --enoughCredit xs = foldr (+) 0
 
-gt40 :: ModuleResult -> Bool
-gt40 result | mark result >= 40 = True
-            | otherwise = False
-
-gt25 :: ModuleResult -> Bool
-gt25 result | mark result >= 25 = True
-            | otherwise = False
-
 yearPass :: [ModuleResult] -> Bool
--- yearPass [] = True
--- yearPass (x:xs) = (gt40 x) && (yearPass xs)
-yearPass list = and (filter (\x -> (mark x >= 40)) list)
+yearPass list = and (map (\x -> (mark x >= 40)) list)
 
 yearQualify :: [ModuleResult] -> Bool
-yearQualify [] = False
-yearQualify (x:xs) = (gt25 x) && (yearQualify xs)
+yearQualify list = and (map (\x -> (mark x >= 25)) list)
 
 isEnoughCompensate :: Bool -> [ModuleResult] -> Bool
 isEnoughCompensate False [] = False
@@ -162,10 +151,12 @@ averageMark list = (totalMark list ) `div` (length list)
 canProgress :: [ModuleResult] -> Bool
 canProgress [] = False
 canProgress list | (yearPass list) && (isEnoughCredit list)  == True = True
+                 | (yearPass list) == False && and (map (\x -> credit x >=15) failModule) = False 
                  | isEnoughCompensate (yearQualify list) list && (isEnoughCredit list) == True = True
                  | yearQualify list == False = False
                  | otherwise = False
-
+ where
+  failModule = (filter (\x -> mark x < 40) list)
 
 -- Exercise 4
 -- compute the degree classification associate with 3 or 4 year's worth of results
@@ -516,7 +507,3 @@ listOfNode n = x:(listOfNode x)
 
 isShellTreeSum :: Int -> Bool
 isShellTreeSum n = (sum $ tail $ listOfNode n) == snd (unPair n)
-
--- TODO∷
--- 8. check ex3,  ex15
--- ex5 does load at tol = 1e-6 not smaller
