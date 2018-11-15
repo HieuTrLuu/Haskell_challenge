@@ -29,6 +29,7 @@ import Control.Monad
 -- split a given list into sub-lists
 -- each of these must be strictly ascending, descending, or equal
 
+--use recursion depend on the case of what list it is, descending, ascending or equal
 splitSort :: [Int] -> [[Int]]
 splitSort [] = []
 splitSort xs | (length $ head asc) >1 = (head asc):splitSort (snd (splitAt (length $ head asc) xs))
@@ -42,14 +43,15 @@ splitSort xs | (length $ head asc) >1 = (head asc):splitSort (snd (splitAt (leng
 
 positions :: Eq a => a -> [a] -> [Int]
 positions x xs = [ index | (y, index) <- zip xs [0..], x==y]
-
+  
+-- 3 function to seperate 3 case : descending list, ascending list and equalist
 splitDes :: [Int] -> [[Int]]
 splitDes = foldr f [] 
  where
   f x [] = [[x]]
   f x (y:ys) = if x > head y
-      then (x:y):ys -- prepend x to the first list in the summary value
-      else [x]:y:ys -- prepend the new list [x] to the summary value
+      then (x:y):ys
+      else [x]:y:ys
 
 
 splitAsc :: [Int] -> [[Int]]
@@ -57,41 +59,50 @@ splitAsc = foldr f []
  where
   f x [] = [[x]]
   f x (y:ys) = if x < head y
-      then (x:y):ys -- prepend x to the first list in the summary value
-      else [x]:y:ys -- prepend the new list [x] to the summary value
+      then (x:y):ys
+      else [x]:y:ys
 
 splitEQ :: [Int] -> [[Int]]
 splitEQ = foldr f [] 
  where
   f x [] = [[x]]
   f x (y:ys) = if x == head y
-      then (x:y):ys -- prepend x to the first list in the summary value
-      else [x]:y:ys -- prepend the new list [x] to the summary value
+      then (x:y):ys
+      else [x]:y:ys
 
--- transformList1 :: [[Int]] -> [[Int]]
--- transformList1 xs = [ |x<-xs]
 
 -- Exercise 2
 -- longest common sub-list of a finite list of finite list
+
+-- function that get longest common sublist between 2 list
 lcs :: Eq a => [a] -> [a] -> [a]
 lcs l1 l2 = Data.List.intersect l1 l2
+--TODO: incorrect
+-- longestCommonSubList [[1,2,3,4,5,1,1], [0,1,3,4,1,1,1,1,1,1,1], [1,3,41,1,1,1,1,1,1,1,2,2,2,2,2,2,1,1,1]]
 
-helper :: Eq a => [[a]] -> [[a]]
-helper xs = [lcs lists1 lists2 | lists1 <- xs, lists2 <- xs, lists1/=lists2]
+-- helper :: Eq a => [[a]] -> [[a]]
+-- helper xs = [lcs lists1 lists2 | lists1 <- xs, lists2 <- xs, lists1/=lists2]
 
-helper2 :: Eq a => [[a]] -> [[a]] -> [[a]]
-helper2 common input = [ x | x <- common, y <-input, lcs x y == x]
 
-lsort :: [[a]] -> [[a]]
-lsort = sortBy (comparing length)
+helper2 :: Eq a => [[a]] -> [[a]] -> [Bool]
+helper2 xs input = [and (map (\x -> (lcs common x) == common) input) | common <- xs]
 
+getEltAt :: Int -> [Int] -> Int
+getEltAt index list = head (snd $ splitAt index list)
+
+-- lsort :: [[a]] -> [[a]]
+-- lsort = sortBy (comparing length)
 
 longestCommonSubList :: Eq a => [[a]] -> [a]
 longestCommonSubList [] = []
 longestCommonSubList [[]] = []
-longestCommonSubList input = head (helper2 common input)
+longestCommonSubList input = getEltAt index common
  where
   common = reverse (lsort (helper input))
+  helper xs = losrt [lcs lists1 lists2 | lists1 <- xs, lists2 <- xs, lists1/=lists2]
+  lsort = sortBy (comparing length)
+  index = head $ position True (helper2 common input)
+
 -- Exercise 3
 -- check whether the given results are sufficient to pass the year
 -- and progress using the University of Southampton Calendar regulations
@@ -148,15 +159,11 @@ canProgress list | (yearPass list) && (isEnoughCredit list)  == True = True
 -- using the regulations given in the University of Southampton Calendar
 data DegreeClass = First | UpperSecond | LowerSecond | Third deriving (Eq, Show)
 calculateDegree :: [[ModuleResult]] -> Int -> Int
---calculateDegree (x:xs) 3 = ( (averageMark $ head xs) + (averageMark ( head $ tail xs) * 2) ) `div` 3
---calculateDegree (x:xs) 4 = ( averageMark $ head xs + averageMark $ head $ tail xs * 2 + averageMark $ head $ tail $ tail xs * 2 ) `div` 5
 calculateDegree (x:xs) 3 =  ((averageMark $ head xs) + (averageMark $ head $ tail xs )* 2) `div` 3
 calculateDegree (x:xs) 4 =  ((averageMark $ head xs) + (averageMark $ head $ tail xs )* 2 + (averageMark $ head $ tail $ tail xs )* 2) `div` 5
  where
   yearThree = averageMark $ head $ tail xs
   yearFour = averageMark $ head $ tail $ tail xs
-
--- TODO: find out why the where here did not work and refactor the code
 
 classify :: [[ModuleResult]] -> DegreeClass
 classify ms | averageMark >= 70 = First
@@ -175,11 +182,6 @@ hillClimb :: (Float -> Float) -> Float -> Float -> Float -> Float
 hillClimb f x y tol | (b - a) <= tol = a
                     | (f c) >= (f d) = hillClimb f a d tol
                     | (f c) < (f d) = hillClimb f c b tol
-                    
-                    -- | f 1 > f 2 && (f c) >= (f d) = hillClimb f a d tol
-                    -- | f 1 > f 2 && (f c) < (f d) = hillClimb f c b tol
-                    -- | f 1 < f 2 && (f c) >= (f d) = hillClimb' f a d tol
-                    -- | f 1 < f 2 && (f c) < (f d) = hillClimb' f c b tol
  where
   a = min x y
   b = max x y
@@ -234,7 +236,6 @@ executeOperations (x:xs) Pop = xs
 executeOperations (x:xs) Add = (x + head xs):(tail xs)
 executeOperations (x:xs) Multiply = (x * head xs):(tail xs)
 executeOperations (x:xs) Duplicate = x:x:xs
--- TODO: include case of add and multiply when there is only one int in the int list
 
 executeInstructionSequence :: [Int] -> [Instruction] -> [Int]
 executeInstructionSequence [] ins = []
@@ -450,6 +451,7 @@ isEncoded _ = False
 seperateString :: String -> [String]
 seperateString s = splitPlaces (generateDuplicate2List (length s)) s
 
+--TODO: what does this method do again ?
 generateDuplicate2List :: Int -> [Int]
 generateDuplicate2List x = 2:generateDuplicate2List (x-1)
 
@@ -462,6 +464,7 @@ decoded "11" = 'd'
 -- Exercise 13
 -- return a stream which is different from all streams of the given stream
 -- you may choose to use Cantor's diagonal method
+--TODO: at the moment, the output of this stream is not binary
 differentStream :: [[Int]] -> [Int]
 differentStream ss = [ (recurseHead (snd x) (fst x) +1 )|x<-buffer]
  where
@@ -474,6 +477,7 @@ recurseHead ss n = recurseHead (tail ss) (n-1)
 
 -- Exercise 14
 -- extract both components from a square shell pair and apply the (curried) function
+
 unPairAndApply :: Int -> (Int -> Int -> a) -> a
 unPairAndApply n f = f x y
  where
@@ -485,10 +489,12 @@ unPair z | (z - m^2) < m = (z - m^2, m)
          | otherwise = (m , m^2 + 2*m -z)
  where m = isqrt z
 
+--method to solve the problem of sqrt only taken Float
 isqrt :: Int -> Int
 isqrt = floor . sqrt . fromIntegral
 
 -- Exercise 15
+--seperate tree data to a list of 1 and 0
 listOfNode :: Int -> [Int]
 listOfNode 0 = [0]
 listOfNode n = x:(listOfNode x)

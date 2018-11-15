@@ -60,3 +60,4 @@ SyntaxError: unexpected EOF while parsing
 
 verbose - Object: Clicked on Dismiss!
 error - Object: QConfig setup rejected by the user
+verbose - Object: Deactivating Qiskit extension ...
