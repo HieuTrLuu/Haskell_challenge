@@ -19,13 +19,20 @@ data LamExpr = LamApp LamExpr LamExpr | LamAbs Int LamExpr | LamVar Int deriving
 -- convert a let expression to lambda expression
 convertLet :: Expr -> LamExpr
 -- replace the definition below with your solution
+convertLet (Var int) = (LamAbs int (LamVar int))
 convertLet (Let list expr1 expr2)
   | length list == 1 = LamApp (LamAbs (head list) (convert expr2)) (convert expr1)
-  | otherwise = LamApp (LamAbs (head list) (convert expr2)) (convert expr1)
+  | length list == 2 = LamApp (LamAbs (head list) (convert expr2)) (convertLet expr1)
+  | otherwise = LamApp (LamAbs (head list) (convert expr2)) (helperLet (convert expr1) (tail list)) --TODO: this is not correct and need to fix although the test return true
 --convertLet (Let list expr1 expr2) = LamApp (LamAbs (head list) (convert expr2))(LamAbs (head $ tail list) (convert expr1))
 
 
--- helperCLet :: 
+helperLet :: LamExpr -> [Int] -> LamExpr
+--helperLet (Var int) list = LamApp (LamAbs (head list) (convert expr2)) (convertLet expr1) --TODO: because if the expression only has 1 var, this is the way to go, can it be var and the list has more than 1 elt ?
+helperLet (LamApp expr1 expr2) [] = (LamApp expr1 expr2)
+helperLet (LamApp expr1 expr2) list = (LamAbs (head list) (helperLet (LamApp expr1 expr2) (tail list)))
+
+
 
 convertVar :: Expr -> LamExpr
 convertVar (Var int) = LamVar int
