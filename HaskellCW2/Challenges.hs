@@ -9,31 +9,48 @@ module Challenges (convertLet, prettyPrint, parseLet, countReds, compileArith,
 
 import Data.Char
 import Parsing
+import Eval
 
 -- Challenge 1
 data Expr = App Expr Expr | Let [Int] Expr Expr | Var Int deriving (Show,Eq)
 data LamExpr = LamApp LamExpr LamExpr | LamAbs Int LamExpr | LamVar Int deriving (Show,Eq)
 
---data App a = App Expr Expr deriving (Show,Eq)
---data Let a = Let [Int] Expr Expr
---data Var a = Var Int
---
---data LambApp a = LamApp LamExpr LamExpr
---data LambAbs a =  LamAbs Int LamExpr
---data LambVar a = LambVar Int
+
 
 -- convert a let expression to lambda expression
 convertLet :: Expr -> LamExpr
 -- replace the definition below with your solution
+convertLet (Let [1] expr1 expr2) = LamApp (LamAbs 1 (convert expr2)) (convert expr1)
 
-convertLet e = (LamVar 0)
+convertLet (Let list expr1 expr2) = LamApp (LamAbs (head list) (convert expr2))(LamAbs (head $ tail list) (convert expr1))
 
---convertLet (Var int) = (LamVar int)
---convertLet (Let list expr1 expr2) =
--- where
---  expr1 =
---  expr2 =
---
+-- helperCLet :: 
+
+convertVar :: Expr -> LamExpr
+convertVar (Var int) = LamVar int
+convertVar expr = convert expr
+
+convertApp :: Expr -> LamExpr
+convertApp (App (Var int1) (Var int2)) = LamApp (convert (Var int2)) (convert (Var int1)) 
+convertApp expr =  convert expr
+
+
+convert :: Expr -> LamExpr
+convert expr | getType expr == "Var" = convertVar expr
+             | getType expr == "Let" = convertLet expr
+             | getType expr == "App" = convertApp expr
+
+-- "Test 3: convertLet(let x1 x2 x3 = x3 x2 in x1 x4) equivLam LamApp (LamAbs 1 (LamApp (LamVar 1) (LamVar 4))) (LamAbs 2 (LamAbs 3 (LamApp (LamVar 3) (LamVar 2))))",
+-- convertLet (Let [1,2,3] (App (Var 3) (Var 2)) (App (Var 1) (Var 4))) `equivLam` LamApp (LamAbs 1 (LamApp (LamVar 1) (LamVar 4))) (LamAbs 2 (LamAbs 3 (LamApp (LamVar 3) (LamVar 2))))
+                                    
+
+getType :: Expr ->  String
+getType (Var _) = "Var"
+getType (Let i1 i2 i3) = "Let"
+getType (App i1 i2) = "App"
+
+getInt :: Expr -> Int
+getInt (Var int) = int
 
 
 
