@@ -9,7 +9,6 @@ module Challenges (convertLet, prettyPrint, parseLet, countReds, compileArith,
 
 import Data.Char
 import Parsing
-import Eval
 
 -- Challenge 1
 data Expr = App Expr Expr | Let [Int] Expr Expr | Var Int deriving (Show,Eq)
@@ -20,9 +19,11 @@ data LamExpr = LamApp LamExpr LamExpr | LamAbs Int LamExpr | LamVar Int deriving
 -- convert a let expression to lambda expression
 convertLet :: Expr -> LamExpr
 -- replace the definition below with your solution
-convertLet (Let [1] expr1 expr2) = LamApp (LamAbs 1 (convert expr2)) (convert expr1)
+convertLet (Let list expr1 expr2)
+  | length list == 1 = LamApp (LamAbs (head list) (convert expr2)) (convert expr1)
+  | otherwise = LamApp (LamAbs (head list) (convert expr2)) (convert expr1)
+--convertLet (Let list expr1 expr2) = LamApp (LamAbs (head list) (convert expr2))(LamAbs (head $ tail list) (convert expr1))
 
-convertLet (Let list expr1 expr2) = LamApp (LamAbs (head list) (convert expr2))(LamAbs (head $ tail list) (convert expr1))
 
 -- helperCLet :: 
 
@@ -31,7 +32,7 @@ convertVar (Var int) = LamVar int
 convertVar expr = convert expr
 
 convertApp :: Expr -> LamExpr
-convertApp (App (Var int1) (Var int2)) = LamApp (convert (Var int2)) (convert (Var int1)) 
+convertApp (App (Var int1) (Var int2)) = LamApp (convert (Var int1)) (convert (Var int2))
 convertApp expr =  convert expr
 
 
