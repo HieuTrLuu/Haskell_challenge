@@ -1,6 +1,8 @@
 -- Example Lambda calculus interpreter
 
-data Expr = Var String | Lam String Expr | App Expr Expr
+type Environment = [(String, Expr)]
+
+data Expr = Var String | Lam String Expr | App Expr Expr | Closure Expr Environment
   deriving (Eq, Show, Read)
 
 free :: String -> Expr -> Bool
