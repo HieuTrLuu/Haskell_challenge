@@ -57,8 +57,6 @@ getType (Var _) = "Var"
 getType (Let i1 i2 i3) = "Let"
 getType (App i1 i2) = "App"
 
-getInt :: Expr -> Int
-getInt (Var int) = int
 
 
 
@@ -66,7 +64,16 @@ getInt (Var int) = int
 -- pretty print a let expression by converting it to a string
 prettyPrint :: Expr -> String
 -- replace the definition below with your solution
-prettyPrint e = ""
+prettyPrint e = convert2String e
+
+list2String :: [Int] -> String
+list2String [] = ""
+list2String (x:xs) = "x" ++ (show x) ++ " " ++ list2String xs
+
+convert2String :: Expr -> String
+convert2String (Var int) = "x" ++ (show int)
+convert2String (Let list expr1 expr2) = "let " ++ (list2String list) ++ " = " ++ convert2String(expr1) ++ " in " ++ convert2String(expr2)
+convert2String (App expr1 expr2) = (convert2String expr1) ++ " " ++ (convert2String expr2)
 
 -- Challenge 3
 -- parse a let expression
