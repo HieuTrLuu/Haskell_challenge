@@ -26,4 +26,4 @@ qsort (a:as) = qsort left ++ [a] ++ qsort right
 
 main = print (qsort [8, 4, 0, 3, 1, 23, 11, 18])
 
---TODO there is something with this, it can debug here but not int the challenges file
+--TODO there is something with this, it can debug her  e but not int the challenges file

@@ -15,57 +15,59 @@ import Challenges
 tests :: [(String, [(String, Bool)])]
 tests =
   [
-  ("Challenge 1",
-    [ ("Test 1: convertLet(let x1 = x1 in x2) equivLam LamApp (LamAbs 1 (LamVar 2)) (LamVar 1)",
-        convertLet (Let [1] (Var 1) (Var 2)) `equivLam` LamApp (LamAbs 1 (LamVar 2)) (LamVar 1)
-      ),
-      ("Test 2: convertLet(let x1 x2 = x2 in x1) equivLam LamApp (LamAbs 1 (LamVar 1)) (LamAbs 2 (LamVar 2))",
-        convertLet (Let [1,2] (Var 2) (Var 1)) `equivLam` LamApp (LamAbs 1 (LamVar 1)) (LamAbs 2 (LamVar 2))
-      ),
-      ("Test 3: convertLet(let x1 x2 x3 = x3 x2 in x1 x4) equivLam LamApp (LamAbs 1 (LamApp (LamVar 1) (LamVar 4))) (LamAbs 2 (LamAbs 3 (LamApp (LamVar 3) (LamVar 2))))",
-        convertLet (Let [1,2,3] (App (Var 3) (Var 2)) (App (Var 1) (Var 4))) `equivLam` LamApp (LamAbs 1 (LamApp (LamVar 1) (LamVar 4))) (LamAbs 2 (LamAbs 3 (LamApp (LamVar 3) (LamVar 2))))
-      ),
-      ("Test 4: convertLet(let x1 = x2 in let x3 = x4 in x1 x3) equivLam LamApp (LamAbs 1 (LamApp (LamAbs 3 (LamApp (LamVar 1) (LamVar 3))) (LamVar 4))) (LamVar 2)",
-        convertLet (Let [1] (Var 2) (Let [3] (Var 4) (App (Var 1) (Var 3)))) `equivLam` LamApp (LamAbs 1 (LamApp (LamAbs 3 (LamApp (LamVar 1) (LamVar 3))) (LamVar 4))) (LamVar 2)
-      )
-    ]
-  )--,
-  -- ("Challenge 2",
-  --   [ ("Test 1: prettyPrint (Let [1] (Var 2) (Var 1)) equivLetString let x1 = x2 in x1",
-  --       prettyPrint (Let [1] (Var 2) (Var 1)) `equivLetString` "let x1 = x2 in x1"
-  --     ),
-  --     ("Test 2: prettyPrint (Let [1,2] (Var 2) (App (Var 3) (Var 1))) equivLetString let x1 x2 = x2 in x3 x1",
-  --       prettyPrint (Let [1,2] (Var 2) (App (Var 3) (Var 1))) `equivLetString` "let x1 x2 = x2 in x3 x1"
-  --     ),
-  --     ("Test 3: prettyPrint (App (Let [1,2] (Var 2) (Var 3)) (Var 1)) equivLetString (let x1 x2 = x2 in x3) x1",
-  --       prettyPrint (App (Let [1,2] (Var 2) (Var 3)) (Var 1)) `equivLetString` "(let x1 x2 = x2 in x3) x1"
-  --     ),
-  --     ("Test 4: prettyPrint (App (Var 1) (App (Var 2) (Var 3))) equivLetString x1 (x2 x3)",
-  --       prettyPrint (App (Var 1) (App (Var 2) (Var 3))) `equivLetString` "x1 (x2 x3)"
-  --     ),
-  --     ("Test 5: prettyPrint (App (App (Var 1) (Var 2)) (Var 3)) equivLetString x1 x2 x3",
-  --       prettyPrint (App (App (Var 1) (Var 2)) (Var 3)) `equivLetString` "x1 x2 x3"
-  --     )
-  --   ]
-  -- ),
-  -- ("Challenge 3",
-  --   [ ("Test 1: parseLet (let x1 = x2) == Nothing",
-  --       (parseLet "let x1 = x2") == Nothing
-  --     ),
-  --     ("Test 2: parseLet (let x1 = x2 in x1) equivLet (Let [1] (Var 2) (Var 1))",
-  --       (parseLet "let x1 = x2 in x1") `equivLet` (Let [1] (Var 2) (Var 1))
-  --     ),
-  --     ("Test 3: parseLet (let x1 x2 = x2 in x1 x1) equivLet (Let [1,2] (Var 2) (App (Var 1) (Var 1)))",
-  --       (parseLet "let x1 x2 = x2 in x1 x1") `equivLet` (Let [1,2] (Var 2) (App (Var 1) (Var 1)))
-  --     ),
-  --     ("Test 4: parseLet (x1 (x2 x3)) equivLet App (Var 1) (App (Var 2) (Var 3))",
-  --       (parseLet "x1 (x2 x3)") `equivLet` (App (Var 1) (App (Var 2) (Var 3)))
-  --     ),
-  --     ("Test 5: parseLet (x1 x2 x3) equivLet (App (App (Var 1) (Var 2)) (Var 3))",
-  --       (parseLet "x1 x2 x3") `equivLet` (App (App (Var 1) (Var 2)) (Var 3))
-  --     )
-  --   ]
-  -- ),
+--  ("Challenge 1",
+--    [ ("Test 1: convertLet(let x1 = x1 in x2) equivLam LamApp (LamAbs 1 (LamVar 2)) (LamVar 1)",
+--        convertLet (Let [1] (Var 1) (Var 2)) `equivLam` LamApp (LamAbs 1 (LamVar 2)) (LamVar 1)
+--      ),
+--      ("Test 2: convertLet(let x1 x2 = x2 in x1) equivLam LamApp (LamAbs 1 (LamVar 1)) (LamAbs 2 (LamVar 2))",
+--        convertLet (Let [1,2] (Var 2) (Var 1)) `equivLam` LamApp (LamAbs 1 (LamVar 1)) (LamAbs 2 (LamVar 2))
+--      ),
+--      ("Test 3: convertLet(let x1 x2 x3 = x3 x2 in x1 x4) equivLam LamApp (LamAbs 1 (LamApp (LamVar 1) (LamVar 4))) (LamAbs 2 (LamAbs 3 (LamApp (LamVar 3) (LamVar 2))))",
+--        convertLet (Let [1,2,3] (App (Var 3) (Var 2)) (App (Var 1) (Var 4))) `equivLam` LamApp (LamAbs 1 (LamApp (LamVar 1) (LamVar 4))) (LamAbs 2 (LamAbs 3 (LamApp (LamVar 3) (LamVar 2))))
+--      ),
+--      ("Test 4: convertLet(let x1 = x2 in let x3 = x4 in x1 x3) equivLam LamApp (LamAbs 1 (LamApp (LamAbs 3 (LamApp (LamVar 1) (LamVar 3))) (LamVar 4))) (LamVar 2)",
+--        convertLet (Let [1] (Var 2) (Let [3] (Var 4) (App (Var 1) (Var 3)))) `equivLam` LamApp (LamAbs 1 (LamApp (LamAbs 3 (LamApp (LamVar 1) (LamVar 3))) (LamVar 4))) (LamVar 2)
+--      )
+--    ]
+--  ),
+--   ("Challenge 2",
+--     [ ("Test 1: prettyPrint (Let [1] (Var 2) (Var 1)) equivLetString let x1 = x2 in x1",
+--         prettyPrint (Let [1] (Var 2) (Var 1)) `equivLetString` "let x1 = x2 in x1"
+--       ),
+--       ("Test 2: prettyPrint (Let [1,2] (Var 2) (App (Var 3) (Var 1))) equivLetString let x1 x2 = x2 in x3 x1",
+--         prettyPrint (Let [1,2] (Var 2) (App (Var 3) (Var 1))) `equivLetString` "let x1 x2 = x2 in x3 x1"
+--       ),
+--       ("Test 3: prettyPrint (App (Let [1,2] (Var 2) (Var 3)) (Var 1)) equivLetString (let x1 x2 = x2 in x3) x1",
+--         prettyPrint (App (Let [1,2] (Var 2) (Var 3)) (Var 1)) `equivLetString` "(let x1 x2 = x2 in x3) x1"
+--       ),
+--       ("Test 4: prettyPrint (App (Var 1) (App (Var 2) (Var 3))) equivLetString x1 (x2 x3)",
+--         prettyPrint (App (Var 1) (App (Var 2) (Var 3))) `equivLetString` "x1 (x2 x3)"
+--       ),
+--       ("Test 5: prettyPrint (App (App (Var 1) (Var 2)) (Var 3)) equivLetString x1 x2 x3",
+--         prettyPrint (App (App (Var 1) (Var 2)) (Var 3)) `equivLetString` "x1 x2 x3"
+--       )
+--     ]
+--   )
+  --,
+   ("Challenge 3",
+     [ ("Test 1: parseLet (let x1 = x2) == Nothing",
+         (parseLet "let x1 = x2") == Nothing
+       ),
+       ("Test 2: parseLet (let x1 = x2 in x1) equivLet (Let [1] (Var 2) (Var 1))",
+         (parseLet "let x1 = x2 in x1") `equivLet` (Let [1] (Var 2) (Var 1))
+       ),
+       ("Test 3: parseLet (let x1 x2 = x2 in x1 x1) equivLet (Let [1,2] (Var 2) (App (Var 1) (Var 1)))",
+         (parseLet "let x1 x2 = x2 in x1 x1") `equivLet` (Let [1,2] (Var 2) (App (Var 1) (Var 1)))
+       ),
+       ("Test 4: parseLet (x1 (x2 x3)) equivLet App (Var 1) (App (Var 2) (Var 3))",
+         (parseLet "x1 (x2 x3)") `equivLet` (App (Var 1) (App (Var 2) (Var 3)))
+       ),
+       ("Test 5: parseLet (x1 x2 x3) equivLet (App (App (Var 1) (Var 2)) (Var 3))",
+         (parseLet "x1 x2 x3") `equivLet` (App (App (Var 1) (Var 2)) (Var 3))
+       )
+     ]
+   )
+  --,
   -- ("Challenge 4",
   --   [ ("Test 1: countReds \\x1 (\\x2 -> x2) 0 = (Just 0, Just 0)",
   --       countReds (LamAbs 1 (LamAbs 2 (LamVar 2))) 0 == (Just 0, Just 0)

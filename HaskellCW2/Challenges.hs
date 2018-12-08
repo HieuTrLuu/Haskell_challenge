@@ -85,7 +85,11 @@ convert2String (App expr1 expr2)
 -- Challenge 3
 -- parse a let expression
 parseLet :: String -> Maybe Expr
--- replace the definition below with your solution
+--replace the definition below with   your solution
+--Note	 that	you	will	need	 to
+--transform	 the	grammar	into	an	equivalent	 form
+-- in	order	 to	avoid	left	 recursion,	which	 results	in	a
+--non-terminating	parser.
 parseLet s = Nothing
 
 -- Challenge 4
