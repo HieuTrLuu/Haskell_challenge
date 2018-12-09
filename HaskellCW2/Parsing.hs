@@ -30,6 +30,7 @@ instance Applicative Parser where
    -- pure :: a -> Parser a
    pure v = P (\inp -> [(v,inp)])
 
+  f <- factor
    -- <*> :: Parser (a -> b) -> Parser a -> Parser b
    pg <*> px = P (\inp -> case parse pg inp of
                              []        -> []
@@ -119,40 +120,40 @@ integer :: Parser Int
 integer = token int
 
 
---expr :: Parser Int
---expr = do
---  t <- term
---  do symbol "+"
---     e <- expr
---     return (t + e)
---   <|> do symbol "-"
---          e <- expr
---          return (t - e)
---   <|> return t
+expr :: Parser Int
+expr = do
+  t <- term
+  do symbol "+"
+     e <- expr
+     return (t + e)
+   <|> do symbol "-"
+          e <- expr
+          return (t - e)
+   <|> return t
 
---term :: Parser Int
---term = do
---  f <- factor
---  do symbol "*"
---     t <- term
---     return (f * t)
---   <|> do symbol "/"
---          t <- term
---          return (f `div` t)
---   <|> return f
+term :: Parser Int
+term = do
+  f <- factor
+  do symbol "*"
+     t <- term
+     return (f * t)
+   <|> do symbol "/"
+          t <- term
+          return (f `div` t)
+   <|> return f
 
---factor :: Parser Int
---factor = do symbol "("
---            e <- expr
---            symbol ")"
---            return e
---          <|> nat
+factor :: Parser Int
+factor = do symbol "("
+            e <- expr
+            symbol ")"
+            return e
+          <|> nat
 
---eval :: String -> Int
---eval xs = case (parse expr xs) of
---  [(n, [])]  -> n
---  [(_, out)] -> error ("Unused input " ++ out)
---  []         -> error "Invalid input"
+eval :: String -> Int
+eval xs = case (parse expr xs) of
+  [(n, [])]  -> n
+  [(_, out)] -> error ("Unused input " ++ out)
+  []         -> error "Invalid input"
 
 
 symbol :: String -> Parser String

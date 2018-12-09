@@ -84,7 +84,7 @@ convert2String (App expr1 expr2)
 
 -- Challenge 3
 -- parse a let expression
-parseLet :: String -> Maybe Expr
+parseLet :: String -> Maybe Exprz
 --replace the definition below with   your solution
 --Note	 that	you	will	need	 to
 --transform	 the	grammar	into	an	equivalent	 form
