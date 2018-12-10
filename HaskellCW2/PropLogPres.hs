@@ -81,7 +81,8 @@ exprL :: Parser Expr
 exprL = do symbol "let"
 --           l <- string ""
            a <- exprA
-           let l = "x1 x2 x3" --remember this is hard coded
+
+--           let l = "x1 x2 x3" --remember this is hard coded
            let list = getIntList(l,[])
            symbol "="
            do c1 <- exprC
@@ -102,7 +103,18 @@ exprC = do a <- exprA
     <|> do l <- exprL
            return l
 
-
+--exprD :: Parser Expr
+--exprD = do symbol "x"
+--           n <- nat
+--           return (Var n)
+--
+--exprE :: Parser [Expr]
+--exprE = do d <- exprD
+--           do e <- exprE
+--              return e
+--           <|>
+--           do x <- factor
+--              return x
 
 getInt :: Expr -> [Int]
 getInt (Var x) = [x]

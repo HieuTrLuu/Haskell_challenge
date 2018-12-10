@@ -13,6 +13,8 @@ import Parsing
 -- Challenge 1
 data Expr = App Expr Expr | Let [Int] Expr Expr | Var Int deriving (Show,Eq)
 data LamExpr = LamApp LamExpr LamExpr | LamAbs Int LamExpr | LamVar Int deriving (Show,Eq)
+--data Maybe a = Just a | Nothing
+--     deriving (Eq, Ord)
 
 
 
@@ -84,13 +86,126 @@ convert2String (App expr1 expr2)
 
 -- Challenge 3
 -- parse a let expression
-parseLet :: String -> Maybe Exprz
---replace the definition below with   your solution
---Note	 that	you	will	need	 to
---transform	 the	grammar	into	an	equivalent	 form
--- in	order	 to	avoid	left	 recursion,	which	 results	in	a
---non-terminating	parser.
-parseLet s = Nothing
+parseLet :: String -> Maybe Expr
+parseLet s = Just (solveChallenge3 s)
+--parseLet s | expr ==  = Nothing
+--           | otherwise = Just expr
+-- TODO: fix the nothing in challenge 3
+
+solveChallenge3 :: String -> Expr
+solveChallenge3 input = fst $ head $ parse exprC input
+
+
+token :: Parser a -> Parser a
+token p = do
+  space
+  v <- p
+  space
+  return v
+
+
+var :: Parser Expr
+var = do symbol "x"
+         n <- nat
+         symbol "x"
+         m <- nat
+         return (App (Var n) (Var m))
+        <|>
+      do symbol "x"
+         n <- nat
+         return (Var n)
+
+recursionOnVar :: (Expr, String) -> (Expr, String)
+recursionOnVar (ex,"") = (ex,"")
+--case recursionOnVar (ex,"")of
+--  (n, []) -> n
+
+recursionOnVar (expr,str) = (App expr (fst $ head $ (parse factor str)), snd $ head (parse factor str))
+
+factor :: Parser Expr
+factor = do symbol "("
+            e <- exprX
+            symbol ")"
+            return e
+          <|> exprX
+
+
+exprX :: Parser Expr
+exprX = do symbol "x"
+           n <- nat
+           symbol "x"
+           m <- nat
+           return (App (Var n) (Var m))
+         <|>
+          do symbol "x"
+             n <- nat
+             return (Var n)
+
+
+exprA :: Parser Expr
+exprA = do
+  x <- factor
+  do e <- exprA
+     return (App x e)
+  <|>
+  do x <- factor
+     return x
+
+exprL :: Parser Expr
+exprL = do symbol "let"
+           a <- exprA
+           let l = prettyPrint a
+           let list = getIntList(l,[])
+           symbol "="
+           do c1 <- exprC
+              symbol "in"
+              do c2 <- exprC
+                 return (Let list c1 c2)
+
+
+
+
+
+exprC :: Parser Expr
+exprC = do a <- exprA
+           return a
+    <|> do l <- exprL
+           return l
+
+--exprD :: Parser Expr
+--exprD = do symbol "x"
+--           n <- nat
+--           return (Var n)
+--
+--exprE :: Parser [Expr]
+--exprE = do d <- exprD
+--           do e <- exprE
+--              return e
+--           <|>
+--           do x <- factor
+--              return x
+
+getInt :: Expr -> [Int]
+getInt (Var x) = [x]
+getInt (App (Var x) (Var y)) = [x,y]
+
+getIntList :: (String, [Int]) -> [Int]
+getIntList (input, list) | str == "" = append list num
+                         | otherwise = getIntList (str, append list num)
+ where
+  temp = parse exprX input
+  str =  snd $ head temp
+  num = getInt $ fst (head temp)
+  --buffer = parse exprA str
+
+append :: [Int] -> [Int] -> [Int]
+append xs ys = foldr (\x y -> x:y) ys xs
+
+
+
+
+
+
 
 -- Challenge 4
 -- count reductions using two different strategies 
