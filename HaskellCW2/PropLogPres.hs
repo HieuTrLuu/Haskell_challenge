@@ -1,70 +1,61 @@
 -- Example for lecture to demonstrate simple monadic parsing
 import Parsing
 
-data BExp = Tru | Fls | Var String | And BExp BExp | Or BExp BExp
+data BExp = Tru | Fls | And BExp BExp | Or BExp BExp deriving (Eq,Show)
+
+--data BExp = Tru | Fls | Var String | And BExp BExp | Or BExp BExp
+--   deriving (Eq,Show)
+
+-----------------------------------------------------------------------------
+-- c3expr   ::= let var = var in var | var
+-- var    ::= var var | x[int]
+
+-- var    ::= x[int] var'
+-- var'   ::= var var' | empty
+
+
+-- factor ::=  ( c3expr ) | var
+
+-----------------------------------------------------------------------------
+
+
+data Expr = App Expr Expr | Let [Int] Expr Expr | Var Int
    deriving (Eq,Show)
 
-type Substitution = [ (String, Bool) ]
+--factor :: Parse Expr
+--factor = do symbol "("
+--            e <-expr
+--            symbol ")"
+--            return e
+--          <|> var
 
-check :: Maybe a -> a
-check Nothing = error ("No binding found for variable ")
-check (Just b) = b
 
--- evaluation function to provide semantics to formulas
-eval :: Substitution -> BExp -> Bool
-eval _ Tru = True
-eval _ Fls = False
-eval s (Var p) = check $ lookup p s
-eval s (And e1 e2) = (eval s e1) && (eval s e2)
-eval s (Or e1 e2)  = (eval s e1) || (eval s e2)
-
--- Parsing Code
-
--- Expressions
--- Define a parser for each kind of expression
--- We use "ident" and
-
--- Expressions
--- Define a parser for each k"symbol" from Parsing.hs
-varExp :: Parser BExp
-varExp = do s <- ident
-            return (Var s)
-
-truExp :: Parser BExp
-truExp = do symbol "T"
-            return (Tru)
- 
-flsExp :: Parser BExp
-flsExp = do symbol "F" 
-            return (Fls)
-
-andExp :: Parser BExp
-andExp = do e1 <- lowerExpr
-            symbol "&" 
-            e2 <- expr
-            return (And e1 e2)
-
-orExp :: Parser BExp
-orExp = do e1 <- evenLowerExpr
-           symbol "|"
-           e2 <- lowerExpr
-           return (Or e1 e2)
-
--- Define the top level entry point
--- use choice <|> to write alternatives in the grammar
-expr :: Parser BExp
-expr = andExp <|> lowerExpr 
-lowerExpr = orExp <|> evenLowerExpr
-evenLowerExpr = varExp <|> truExp <|> flsExp
-
--- Finally, define the actual function to parse input strings
--- NB, this definition is just for demonstration. It is not a good
--- definition and needs improving
-parseBExp :: String -> BExp
-parseBExp = fst . head . (parse expr)
+factor :: Parser Expr
+factor = do symbol "("
+            n <- var
+            symbol ")"
+            m <- var
+            return (App n m)
+         <|> var
 
 
 
+var :: Parser Expr
+var = do symbol "x"
+         n <- nat
+         symbol "x"
+         m <- nat
+         return (App (Var n) (Var m))
+        <|>
+      do symbol "x"
+         n <- nat
+         return (Var n)
+
+recursionOnVar :: (Expr, String) -> (Expr, String)
+recursionOnVar (ex,"") = (ex,"")
+--case recursionOnVar (ex,"")of
+--  (n, []) -> n
+recursionOnVar (expr,str) = (App expr (fst $ head $ (parse factor str)), snd $ head (parse factor str))
 
 
 
