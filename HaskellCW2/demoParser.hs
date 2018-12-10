@@ -219,3 +219,25 @@ instance Alternative Parser where
     case parse p inp of
       []         -> parse q inp
       [(v, out)] -> [(v, out)]
+
+
+-----------------------------------------------------------------------------
+-- expr   ::=  term (+ expr | ∊)
+-- term   ::=  factor (* term | ∊)
+-- factor ::=  ( expr ) | nat
+-- nat    ::=  0 | 1 | 2 | ...
+
+
+-- c3expr   ::= let var = var in var | var
+-- var    ::= var var | x[int]
+
+-- var    ::= x[int] var'
+-- var'   ::= var var' | empty
+-- factor ::=  ( c3expr ) | var
+
+-----------------------------------------------------------------------------
+
+data data Expr = App Expr Expr | Let [Int] Expr Expr | Var Int
+   deriving (Eq,Show)
+
+
