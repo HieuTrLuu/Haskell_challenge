@@ -237,7 +237,7 @@ instance Alternative Parser where
 
 -----------------------------------------------------------------------------
 
-data data Expr = App Expr Expr | Let [Int] Expr Expr | Var Int
-   deriving (Eq,Show)
+--data data Expr = App Expr Expr | Let [Int] Expr Expr | Var Int
+--   deriving (Eq,Show)
 
 

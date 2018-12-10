@@ -1,0 +1,28 @@
+N -> N N | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+L -> let
+I -> in
+X -> x
+E -> =
+A -> X N | A A | F
+B -> L A E A I A
+F -> ( A ) | A
+
+
+    | 9 N'
+ L -> let
+ I -> in
+ X -> xN
+ E -> =
+ A -> X A'
+    | F A'
+ B -> let A E C I C
+ F -> ( A ) F'
+    | X A' F'
+    | ϵ
+A' -> A A'
+    | ϵ
+F' -> A' F'
+
+C -> A | B
+
+
