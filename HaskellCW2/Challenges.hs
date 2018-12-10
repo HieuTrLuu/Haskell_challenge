@@ -9,6 +9,7 @@ module Challenges (convertLet, prettyPrint, parseLet, countReds, compileArith,
 
 import Data.Char
 import Parsing
+--import Sheet7
 
 -- Challenge 1
 data Expr = App Expr Expr | Let [Int] Expr Expr | Var Int deriving (Show,Eq)
@@ -212,6 +213,7 @@ append xs ys = foldr (\x y -> x:y) ys xs
 countReds :: LamExpr -> Int -> (Maybe Int, Maybe Int)
 -- replace the definition below with your solution
 countReds e limit = (Nothing, Nothing)
+
 
 -- Challenge 5
 -- compile an arithmetic expression into a lambda calculus equivalent
