@@ -4,7 +4,7 @@
 -- THAT YOU MAY NOT CHANGE THE FUNCTION TYPE SIGNATURES NOR TYPE DEFINITIONS 
 -- This module statement makes public only the specified functions and types
 -- DO NOT CHANGE THIS LIST OF EXPORTED FUNCTIONS AND TYPES
-module Challenges (convertLet, prettyPrint, parseLet, countReds, compileArith,
+module Challenges (convertLet, prettyPrint, parseLet, countReds, compileArith, evalcbv,
     Expr(App, Let, Var), LamExpr(LamApp, LamAbs, LamVar)) where
 
 import Data.Char
@@ -232,7 +232,7 @@ rename x = (-x)
 --TODO: write your own eval1cbn and eval1cbv
 
 -- Performs a single step of call-by-name reduction
-eval1cbn :: LamExpr -> LamExpr
+xeval1cbn :: LamExpr -> LamExprE
 eval1cbn (LamAbs x e) = (LamAbs x e)
 eval1cbn (LamApp (LamAbs x e1) e2) = subst e1 x e2
 eval1cbn (LamApp e1 e2) = (LamApp (eval1cbn e1) e2)
