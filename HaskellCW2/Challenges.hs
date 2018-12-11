@@ -229,13 +229,24 @@ free x (LamApp e1 e2)  = (free x e1) || (free x e2)
 
 rename :: Int -> Int
 rename x = (-x)
-
+--TODO: write your own eval1cbn and eval1cbv
 
 -- Performs a single step of call-by-name reduction
 eval1cbn :: LamExpr -> LamExpr
 eval1cbn (LamAbs x e) = (LamAbs x e)
 eval1cbn (LamApp (LamAbs x e1) e2) = subst e1 x e2
 eval1cbn (LamApp e1 e2) = (LamApp (eval1cbn e1) e2)
+
+eval1cbv :: LamExpr -> LamExpr
+--eval1cbv (LamVar x) = (LamVar x)
+--eval1cbv (LamApp (LamAbs x (LamVar y)) (LamVar z)) | x==y = (LamVar z)
+--                                                   | x/=y = (LamVar y)
+eval1cbv (LamAbs x e) = subst (LamAbs x e) x e
+eval1cbv (LamApp (LamAbs x e1) e@(LamAbs y e2)) = subst e1 x e
+eval1cbv (LamApp e@(LamAbs x e1) e2) = subst e x e2 --TODO: fix this, not all the time this happens.
+eval1cbv (LamApp e1 e2) = LamApp (eval1cbv e1) e2
+--eval1cbv (LamVar x) = (LamVar x)
+
 
 -- Peforms multiple steps of call-by-name reduction until no change in term is observed
 reductions :: (LamExpr -> LamExpr) -> LamExpr -> [ (LamExpr, LamExpr) ]
@@ -248,11 +259,7 @@ eval ss = fst . head . dropWhile (uncurry (/=)) . reductions ss
 trace :: (LamExpr -> LamExpr) -> LamExpr -> [LamExpr]
 trace ss  = (map fst) . takeWhile (uncurry (/=)) .  reductions ss
 
-eval1cbv :: LamExpr -> LamExpr
-eval1cbv (LamAbs x e) = (LamAbs x e)
-eval1cbv (LamApp (LamAbs x e1) e@(LamAbs y e2)) = subst e1 x e
-eval1cbv (LamApp e@(LamAbs x e1) e2) = LamApp e (eval1cbv e2)
-eval1cbv (LamApp e1 e2) = LamApp (eval1cbv e1) e2
+
 
 evalcbn = eval eval1cbn
 tracecbn = trace eval1cbn
