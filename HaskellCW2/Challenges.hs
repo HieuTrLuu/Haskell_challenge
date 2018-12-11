@@ -227,13 +227,15 @@ free x (LamAbs y e) | x == y = False
 free x (LamAbs y e) | x /= y = free x e
 free x (LamApp e1 e2)  = (free x e1) || (free x e2)
 
-rename x = x++"\'"
+rename :: Int -> Int
+rename x = (-x)
+
 
 -- Performs a single step of call-by-name reduction
 eval1cbn :: LamExpr -> LamExpr
 eval1cbn (LamAbs x e) = (LamAbs x e)
 eval1cbn (LamApp (LamAbs x e1) e2) = subst e1 x e2
-eval1cbn (LamApp e1 e2) = LamApp (eval1cbn e1) e2
+eval1cbn (LamApp e1 e2) = (LamApp (eval1cbn e1) e2)
 
 -- Peforms multiple steps of call-by-name reduction until no change in term is observed
 reductions :: (LamExpr -> LamExpr) -> LamExpr -> [ (LamExpr, LamExpr) ]
@@ -257,6 +259,8 @@ tracecbn = trace eval1cbn
 evalcbv = eval eval1cbv
 tracecbv = trace eval1cbv
 
+lambdaExpr5 = (LamApp (LamAbs 1 (LamAbs 2 (LamVar 1))) (LamVar 3))
+lambdaExpr6 = LamApp lambdaExpr5 (LamApp (LamAbs 4 (LamVar 4)) (LamVar 5))
 
 -- Challenge 5
 -- compile an arithmetic expression into a lambda calculus equivalent
