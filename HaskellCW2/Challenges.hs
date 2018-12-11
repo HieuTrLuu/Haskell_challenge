@@ -204,15 +204,58 @@ append xs ys = foldr (\x y -> x:y) ys xs
 
 
 
-
-
-
-
 -- Challenge 4
 -- count reductions using two different strategies 
 countReds :: LamExpr -> Int -> (Maybe Int, Maybe Int)
 -- replace the definition below with your solution
+
 countReds e limit = (Nothing, Nothing)
+
+-- data LamExpr = LamApp LamExpr LamExpr | LamAbs Int LamExpr | LamVar Int deriving (Show,Eq)
+
+subst :: LamExpr -> Int ->  LamExpr -> LamExpr
+subst (LamVar x) y e | x == y = e
+subst (LamVar x) y e | x /= y = LamVar x
+subst (LamAbs x e1) y e  |  x /= y && not (free x e)  = LamAbs x (subst e1 y e)
+subst (LamAbs x e1) y e  |  x /= y &&     (free x e)  = let x' = rename x in subst (LamAbs x' (subst e1 x (LamVar x'))) y e
+subst (LamAbs x e1) y e  | x == y  = LamAbs x e1
+subst (LamApp e1 e2) y e = LamApp (subst e1 y e) (subst e2 y e)
+
+free :: Int -> LamExpr -> Bool
+free x (LamVar y) =  x == y
+free x (LamAbs y e) | x == y = False
+free x (LamAbs y e) | x /= y = free x e
+free x (LamApp e1 e2)  = (free x e1) || (free x e2)
+
+rename x = x++"\'"
+
+-- Performs a single step of call-by-name reduction
+eval1cbn :: LamExpr -> LamExpr
+eval1cbn (LamAbs x e) = (LamAbs x e)
+eval1cbn (LamApp (LamAbs x e1) e2) = subst e1 x e2
+eval1cbn (LamApp e1 e2) = LamApp (eval1cbn e1) e2
+
+-- Peforms multiple steps of call-by-name reduction until no change in term is observed
+reductions :: (LamExpr -> LamExpr) -> LamExpr -> [ (LamExpr, LamExpr) ]
+reductions ss e = [ p | p <- zip evals (tail evals) ]
+   where evals = iterate ss e
+
+eval :: (LamExpr -> LamExpr) -> LamExpr -> LamExpr
+eval ss = fst . head . dropWhile (uncurry (/=)) . reductions ss
+
+trace :: (LamExpr -> LamExpr) -> LamExpr -> [LamExpr]
+trace ss  = (map fst) . takeWhile (uncurry (/=)) .  reductions ss
+
+eval1cbv :: LamExpr -> LamExpr
+eval1cbv (LamAbs x e) = (LamAbs x e)
+eval1cbv (LamApp (LamAbs x e1) e@(LamAbs y e2)) = subst e1 x e
+eval1cbv (LamApp e@(LamAbs x e1) e2) = LamApp e (eval1cbv e2)
+eval1cbv (LamApp e1 e2) = LamApp (eval1cbv e1) e2
+
+evalcbn = eval eval1cbn
+tracecbn = trace eval1cbn
+evalcbv = eval eval1cbv
+tracecbv = trace eval1cbv
 
 
 -- Challenge 5
