@@ -262,6 +262,12 @@ tracecbv = trace eval1cbv
 lambdaExpr5 = (LamApp (LamAbs 1 (LamAbs 2 (LamVar 1))) (LamVar 3))
 lambdaExpr6 = LamApp lambdaExpr5 (LamApp (LamAbs 4 (LamVar 4)) (LamVar 5))
 
+
+lamTestSub1 = (LamAbs 1 (LamAbs 2 (LamVar 1)))
+lamTestSub3 = LamApp (LamAbs 4 (LamVar 4)) (LamVar 5)
+
+lamTest = LamApp (LamApp lamTestSub1 (LamVar 3)) lamTestSub3
+
 -- Challenge 5
 -- compile an arithmetic expression into a lambda calculus equivalent
 compileArith :: String -> Maybe LamExpr
