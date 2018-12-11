@@ -232,7 +232,7 @@ rename x = (-x)
 --TODO: write your own eval1cbn and eval1cbv
 
 -- Performs a single step of call-by-name reduction
-xeval1cbn :: LamExpr -> LamExprE
+eval1cbn :: LamExpr -> LamExpr
 eval1cbn (LamAbs x e) = (LamAbs x e)
 eval1cbn (LamApp (LamAbs x e1) e2) = subst e1 x e2
 eval1cbn (LamApp e1 e2) = (LamApp (eval1cbn e1) e2)
@@ -243,7 +243,7 @@ eval1cbv :: LamExpr -> LamExpr
 --                                                   | x/=y = (LamVar y)
 eval1cbv (LamAbs x e) = subst (LamAbs x e) x e
 eval1cbv (LamApp (LamAbs x e1) e@(LamAbs y e2)) = subst e1 x e
-eval1cbv (LamApp e@(LamAbs x e1) e2) = subst e x e2 --TODO: fix this, not all the time this happens.
+eval1cbv (LamApp e@(LamAbs x e1) e2) = LamApp e (eval1cbv e2)
 eval1cbv (LamApp e1 e2) = LamApp (eval1cbv e1) e2
 --eval1cbv (LamVar x) = (LamVar x)
 
@@ -281,8 +281,27 @@ compileArith :: String -> Maybe LamExpr
 -- replace the definition below with your solution
 compileArith s = Nothing
 
+encodding :: Int -> LamExpr
+encodding 0 = (LamAbs 1 (LamAbs 2 (LamVar 2)))
+encodding 1 = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
+
+--plus :: LambExpr -> LamExpr -> LamExpr
+--plus expr (LamAbs 1 (LamAbs 2 (LamVar 2))) =
+-- where
+succ1 = (LamApp (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2)))) (LamAbs 1 (LamAbs 2 (LamAbs 3 (LamApp (LamVar 2) (LamApp (LamApp (LamVar 1) (LamVar 2)) (LamVar 3)))))))
+zero = (LamAbs 1 (LamAbs 2 (LamVar 2)))
+one = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
+two = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamApp (LamVar 1) (LamVar 2)))))
+
+test1  = evalcbv (LamApp succ1 zero) --TODO: investigate on this
+test1' = evalcbv (LamApp zero succ1)
+test2  = evalcbn (LamApp succ1 one)
+
 qsort [] = []
 qsort (a:as) = qsort left ++ [a] ++ qsort right
   where (left,right) = (filter (<=a) as, filter (>a) as)
+
+
+--TODO: finish the reduction then we are done
 
 main = print (qsort [8, 4, 0, 3, 1, 23, 11, 18])

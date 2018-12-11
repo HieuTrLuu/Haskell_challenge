@@ -49,24 +49,24 @@ tests =
 --     ]
 --   )
   --,
-   ("Challenge 3",
-     [ ("Test 1: parseLet (let x1 = x2) == Nothing",
-         (parseLet "let x1 = x2") == Nothing
-       ),
-       ("Test 2: parseLet (let x1 = x2 in x1) equivLet (Let [1] (Var 2) (Var 1))",
-         (parseLet "let x1 = x2 in x1") `equivLet` (Let [1] (Var 2) (Var 1))
-       ),
-       ("Test 3: parseLet (let x1 x2 = x2 in x1 x1) equivLet (Let [1,2] (Var 2) (App (Var 1) (Var 1)))",
-         (parseLet "let x1 x2 = x2 in x1 x1") `equivLet` (Let [1,2] (Var 2) (App (Var 1) (Var 1)))
-       ),
-       ("Test 4: parseLet (x1 (x2 x3)) equivLet App (Var 1) (App (Var 2) (Var 3))",
-         (parseLet "x1 (x2 x3)") `equivLet` (App (Var 1) (App (Var 2) (Var 3)))
-       ),
-       ("Test 5: parseLet (x1 x2 x3) equivLet (App (App (Var 1) (Var 2)) (Var 3))",
-         (parseLet "x1 x2 x3") `equivLet` (App (App (Var 1) (Var 2)) (Var 3))
-       )
-     ]
-   )
+--   ("Challenge 3",
+--     [ ("Test 1: parseLet (let x1 = x2) == Nothing",
+--         (parseLet "let x1 = x2") == Nothing
+--       ),
+--       ("Test 2: parseLet (let x1 = x2 in x1) equivLet (Let [1] (Var 2) (Var 1))",
+--         (parseLet "let x1 = x2 in x1") `equivLet` (Let [1] (Var 2) (Var 1))
+--       ),
+--       ("Test 3: parseLet (let x1 x2 = x2 in x1 x1) equivLet (Let [1,2] (Var 2) (App (Var 1) (Var 1)))",
+--         (parseLet "let x1 x2 = x2 in x1 x1") `equivLet` (Let [1,2] (Var 2) (App (Var 1) (Var 1)))
+--       ),
+--       ("Test 4: parseLet (x1 (x2 x3)) equivLet App (Var 1) (App (Var 2) (Var 3))",
+--         (parseLet "x1 (x2 x3)") `equivLet` (App (Var 1) (App (Var 2) (Var 3)))
+--       ),
+--       ("Test 5: parseLet (x1 x2 x3) equivLet (App (App (Var 1) (Var 2)) (Var 3))",
+--         (parseLet "x1 x2 x3") `equivLet` (App (App (Var 1) (Var 2)) (Var 3))
+--       )
+--     ]
+--   )
   --,
   -- ("Challenge 4",
   --   [ ("Test 1: countReds \\x1 (\\x2 -> x2) 0 = (Just 0, Just 0)",
@@ -86,25 +86,25 @@ tests =
   --     )
   --   ]
   -- ),
-  -- ("Challenge 5",
-  --   [ ("Test 1: compileArith (0++) == Nothing",
-  --       compileArith "0++" == Nothing
-  --     ),
-  --     ("Test 2: compileArith (0) equivLam2 \\x -> \\y -> y",
-  --      (compileArith "0") `equivLam2` (LamAbs 1 (LamAbs 2 (LamVar 2)))
-  --     ),
-  --     ("Test 3: compileArith (1) equivLam2 \\x -> \\y -> x y",
-  --      (compileArith "1") `equivLam2` (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
-  --     ),
-  --     ("Test 4: compileArith (2) equivLam2 \\x -> \\y -> x x y",
-  --      (compileArith "2") `equivLam2` (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamApp (LamVar 1) (LamVar 2)))))
-  --     ),
-  --     ("Test 5: compileArith \"(+1)\" equivLam2 (\\x -> \\y -> x y)(\\x -> \\y -> \\z -> y (x y z))",
-  --      (compileArith "(+1)") `equivLam2`
-  --          (LamApp (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2)))) (LamAbs 1 (LamAbs 2 (LamAbs 3 (LamApp (LamVar 2) (LamApp (LamApp (LamVar 1) (LamVar 2)) (LamVar 3)))))))
-  --     )
-  --   ]
-  -- )
+   ("Challenge 5",
+     [ ("Test 1: compileArith (0++) == Nothing",
+         compileArith "0++" == Nothing
+       ),
+       ("Test 2: compileArith (0) equivLam2 \\x -> \\y -> y",
+        (compileArith "0") `equivLam2` (LamAbs 1 (LamAbs 2 (LamVar 2)))
+       ),
+       ("Test 3: compileArith (1) equivLam2 \\x -> \\y -> x y",
+        (compileArith "1") `equivLam2` (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
+       ),
+       ("Test 4: compileArith (2) equivLam2 \\x -> \\y -> x x y",
+        (compileArith "2") `equivLam2` (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamApp (LamVar 1) (LamVar 2)))))
+       ),
+       ("Test 5: compileArith \"(+1)\" equivLam2 (\\x -> \\y -> x y)(\\x -> \\y -> \\z -> y (x y z))",
+        (compileArith "(+1)") `equivLam2`
+            (LamApp (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2)))) (LamAbs 1 (LamAbs 2 (LamAbs 3 (LamApp (LamVar 2) (LamApp (LamApp (LamVar 1) (LamVar 2)) (LamVar 3)))))))
+       )
+     ]
+   )
   ]
 
 -- Main program checks the results of the tests and produces scores
