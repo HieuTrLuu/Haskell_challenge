@@ -1,7 +1,7 @@
 -- COMP2209 Coursework 2, University of Southampton 2018
 -- DUMMY FILE FOR YOU TO EDIT AND ADD YOUR OWN IMPLEMENTATIONS
 -- NOTE THAT NO THIRD PARTY MODULES MAY BE USED IN SOLVING THESE EXERCISES AND
--- THAT YOU MAY NOT CHANGE THE FUNCTION TYPE SIGNATURES NOR TYPE DEFINITIONS 
+-- THAT YOU MAY NOT CHANGE THE FUNCTION TYPE SIGNATURES NOR TYPE DEFINITIONS
 -- This module statement makes public only the specified functions and types
 -- DO NOT CHANGE THIS LIST OF EXPORTED FUNCTIONS AND TYPES
 module Challenges (convertLet, prettyPrint, parseLet, countReds, compileArith, evalcbv,
@@ -53,7 +53,7 @@ convert expr | getType expr == "Var" = convertVar expr
 
 -- "Test 3: convertLet(let x1 x2 x3 = x3 x2 in x1 x4) equivLam LamApp (LamAbs 1 (LamApp (LamVar 1) (LamVar 4))) (LamAbs 2 (LamAbs 3 (LamApp (LamVar 3) (LamVar 2))))",
 -- convertLet (Let [1,2,3] (App (Var 3) (Var 2)) (App (Var 1) (Var 4))) `equivLam` LamApp (LamAbs 1 (LamApp (LamVar 1) (LamVar 4))) (LamAbs 2 (LamAbs 3 (LamApp (LamVar 3) (LamVar 2))))
-                                    
+
 
 getType :: Expr ->  String
 getType (Var _) = "Var"
@@ -205,7 +205,7 @@ append xs ys = foldr (\x y -> x:y) ys xs
 
 
 -- Challenge 4
--- count reductions using two different strategies 
+-- count reductions using two different strategies
 countReds :: LamExpr -> Int -> (Maybe Int, Maybe Int)
 -- replace the definition below with your solution
 
@@ -221,8 +221,12 @@ subst (LamAbs x e1) y e  |  x /= y &&     (free x e)  = let x' = rename x in sub
 subst (LamAbs x e1) y e  | x == y  = LamAbs x e1
 subst (LamApp e1 e2) y e = LamApp (subst e1 y e) (subst e2 y e)
 
+testSubst1 = LamAbs 1 (LamVar 2)
+
 free :: Int -> LamExpr -> Bool
 free x (LamVar y) =  x == y
+--free or bound depend on a lambda expression why do we need an integer as argument ?
+-- we check whether a variable (int argument) is free in an lambda expression
 free x (LamAbs y e) | x == y = False
 free x (LamAbs y e) | x /= y = free x e
 free x (LamApp e1 e2)  = (free x e1) || (free x e2)
@@ -246,6 +250,23 @@ eval1cbv (LamApp (LamAbs x e1) e@(LamAbs y e2)) = subst e1 x e
 eval1cbv (LamApp e@(LamAbs x e1) e2) = LamApp e (eval1cbv e2)
 eval1cbv (LamApp e1 e2) = LamApp (eval1cbv e1) e2
 --eval1cbv (LamVar x) = (LamVar x)
+
+evalLI :: LamExpr -> LamExpr
+--evaluation of leftmost innermost (cbv)
+evalLI (LamVar x) = (LamVar x)
+evalLI (LamAbs x e) = subst (LamAbs x e) x e
+evalLI (LamApp e@(LamAbs x e1) (LamVar y)) = subst e1 x (LamVar y) --TODO: this is the first line what I include in the eval
+evalLI (LamApp (LamAbs x e1) e@(LamAbs y e2)) = subst e1 x e
+evalLI (LamApp e@(LamAbs x e1) e2) = LamApp e (evalLI e2)
+evalLI (LamApp e1 e2) = LamApp (evalLI e1) e2
+
+-- custom lambda calculus expressions test values
+lam1 = (LamAbs 1 (LamVar 1))
+--lambdaExpr5 = (LamApp (LamAbs 1 (LamAbs 2 (LamVar 1))) (LamVar 3))
+lambdaExpr6rhs = (LamApp (LamAbs 4 (LamVar 4)) (LamVar 5))
+
+wrong = (LamApp (LamAbs 2 (LamVar 3)) (LamVar 5))
+
 
 
 -- Peforms multiple steps of call-by-name reduction until no change in term is observed
@@ -273,6 +294,7 @@ lambdaExpr6 = LamApp lambdaExpr5 (LamApp (LamAbs 4 (LamVar 4)) (LamVar 5))
 lamTestSub1 = (LamAbs 1 (LamAbs 2 (LamVar 1)))
 lamTestSub3 = LamApp (LamAbs 4 (LamVar 4)) (LamVar 5)
 
+
 lamTest = LamApp (LamApp lamTestSub1 (LamVar 3)) lamTestSub3
 
 -- Challenge 5
@@ -280,6 +302,7 @@ lamTest = LamApp (LamApp lamTestSub1 (LamVar 3)) lamTestSub3
 compileArith :: String -> Maybe LamExpr
 -- replace the definition below with your solution
 compileArith s = Nothing
+
 
 encodding :: Int -> LamExpr
 encodding 0 = (LamAbs 1 (LamAbs 2 (LamVar 2)))
@@ -303,5 +326,7 @@ qsort (a:as) = qsort left ++ [a] ++ qsort right
 
 
 --TODO: finish the reduction then we are done
+--TODO: sorry I forgot about the parser on 5
+
 
 main = print (qsort [8, 4, 0, 3, 1, 23, 11, 18])

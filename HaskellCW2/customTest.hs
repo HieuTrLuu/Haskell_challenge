@@ -17,7 +17,10 @@ tests =
   [
    ("test cbv",
      [ ("Test 1: call by value expr5",
-          (turn2Maybe (evalcbv lambdaExpr5)) `equivLam2` (LamAbs 1 (LamAbs 2 (LamVar 2)))
+          (turn2Maybe (evalcbv lambdaExpr5)) `equivLam2` ((evalcbv lambdaExpr5))
+          (evalLI lam1 (LamVar2)) `equivLam` (LamVar2)
+
+
        )
 
 
@@ -60,6 +63,9 @@ message ts =
   if failures == [] then "all test cases passed"
   else "failed " ++ (show (length failures)) ++ " out of " ++ (show (length ts)) ++ " test cases"
 
+-- custom lambda calculus expressions test values
+lam1 = (LamAbs 1 (LamVar 1))
+
 
 -- lambda calculus expressions test values
 lambdaExpr1 = LamApp (LamAbs 1 (LamVar 1)) (LamAbs 1 (LamVar 1))
@@ -68,6 +74,7 @@ lambdaExpr3 = LamApp lambdaExpr2 lambdaExpr1
 lambdaExpr4 = LamApp lambdaExpr1 lambdaExpr2
 lambdaExpr5 = (LamApp (LamAbs 1 (LamAbs 2 (LamVar 1))) (LamVar 3))
 lambdaExpr6 = LamApp lambdaExpr5 (LamApp (LamAbs 4 (LamVar 4)) (LamVar 5))
+
 -- Smullyan's mockingbird(s)
 lambdaOmega = LamAbs 1 (LamApp (LamVar 1) (LamVar 1))
 lambdaOmega1 = LamApp lambdaOmega lambdaOmega
@@ -116,3 +123,5 @@ remSpaces (c:s) = c:(remSpaces s)
 
 turn2Maybe :: LamExpr -> Maybe LamExpr
 turn2Maybe s = (Just s)
+
+
