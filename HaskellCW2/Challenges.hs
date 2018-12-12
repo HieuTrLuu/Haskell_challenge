@@ -60,6 +60,10 @@ getType (Var _) = "Var"
 getType (Let i1 i2 i3) = "Let"
 getType (App i1 i2) = "App"
 
+getLambdaType :: LamExpr ->  String
+getLambdaType (LamVar _) = "Var"
+getLambdaType (LamAbs int e) = "Abs"
+getLambdaType (LamApp e1 e2) = "App"
 
 
 -- Challenge 2
@@ -251,14 +255,50 @@ eval1cbv (LamApp e@(LamAbs x e1) e2) = LamApp e (eval1cbv e2)
 eval1cbv (LamApp e1 e2) = LamApp (eval1cbv e1) e2
 --eval1cbv (LamVar x) = (LamVar x)
 
+--evalLI :: LamExpr -> LamExpr
+----evaluation of leftmost innermost (cbv)
+--evalLI (LamVar x) = (LamVar x)
+--evalLI (LamAbs x e) = evalLI e
+----evalLI (LamApp e@(LamAbs x e1) (LamVar y)) = subst e1 x (LamVar y) TODO: this is the first line what I include in the eval
+--evalLI (LamApp (LamAbs x e1) e@(LamAbs y e2)) = subst e1 x e
+--evalLI (LamApp e@(LamAbs x e1) e2) = LamApp e (evalLI e2)
+--evalLI (LamApp e1 e2) = LamApp (evalLI e1) e2
+
+--eval1cbv :: Expr -> Expr
+--eval1cbv (Lam x e) = (Lam x e)
+--eval1cbv (App (Lam x e1) e@(Lam y e2)) = subst e1 x e
+--eval1cbv (App e@(Lam x e1) e2) = App e (eval1cbv e2)
+--eval1cbv (App e1 e2) = App (eval1cbv e1) e2
+
+
+--eval1cbv' :: LamExpr -> LamExpr
+--eval1cbv' (LamAbs x e) = (LamAbs x eval1cbv')
+----eval1cbv' (LamApp e1@(LamAbs x (Var int)) e2@(LamAbs y e2)) = LamApp
+--eval1cbv' (LamApp e@(LamAbs x e1@(LamVar input)) e2) = subst e1 x e2
+--eval1cbv' (LamApp e@(LamAbs x e1) e2) = (LamApp  e2)
+--eval1cbv' (LamApp e1 e2) = LamApp (eval1cbv' e1) e2
+
 evalLI :: LamExpr -> LamExpr
---evaluation of leftmost innermost (cbv)
-evalLI (LamVar x) = (LamVar x)
-evalLI (LamAbs x e) = subst (LamAbs x e) x e
-evalLI (LamApp e@(LamAbs x e1) (LamVar y)) = subst e1 x (LamVar y) --TODO: this is the first line what I include in the eval
+--evalLI (LamAbs x e) = (LamAbs x e)
+evalLI (LamVar x) = LamVar x
+evalLI (LamApp (LamAbs int e1@(LamVar v1)) e2@(LamVar v2)) = subst e1 int e2
 evalLI (LamApp (LamAbs x e1) e@(LamAbs y e2)) = subst e1 x e
-evalLI (LamApp e@(LamAbs x e1) e2) = LamApp e (evalLI e2)
+evalLI (LamApp e@(LamAbs int e1) e2) = subst e1 int e2
+evalLI (LamApp e1@(LamVar int) e2) = LamApp e1 (evalLI e2)
 evalLI (LamApp e1 e2) = LamApp (evalLI e1) e2
+
+evalRI :: LamExpr -> LamExpr
+--evalLI (LamAbs x e) = (LamAbs x e)
+--evalRI (LamVar x) = LamVar x
+evalRI (LamApp (LamAbs int1 expr) e2@(LamVar int2)) = subst expr int1 e2
+evalRI (LamApp expr (LamApp (LamAbs int e1@(LamVar v1)) e2@(LamVar v2))) = LamApp expr (subst e1 int e2)
+evalRI (LamApp expr (LamApp (LamAbs x e1) e@(LamAbs y e2))) = LamApp expr (subst e1 x e)
+evalRI (LamApp e1 e2@(LamVar int)) = LamApp (evalRI e1) e2
+evalRI (LamApp e1 e2) = LamApp e1 (evalLI e2)
+
+
+
+
 
 -- custom lambda calculus expressions test values
 lam1 = (LamAbs 1 (LamVar 1))
@@ -269,10 +309,10 @@ wrong = (LamApp (LamAbs 2 (LamVar 3)) (LamVar 5))
 
 
 
--- Peforms multiple steps of call-by-name reduction until no change in term is observed
 reductions :: (LamExpr -> LamExpr) -> LamExpr -> [ (LamExpr, LamExpr) ]
 reductions ss e = [ p | p <- zip evals (tail evals) ]
-   where evals = iterate ss e
+   where evals = takeWhile (\x -> (getLambdaType x) /= "Var") $ iterate ss e
+
 
 eval :: (LamExpr -> LamExpr) -> LamExpr -> LamExpr
 eval ss = fst . head . dropWhile (uncurry (/=)) . reductions ss
