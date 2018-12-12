@@ -9,14 +9,10 @@ module Challenges (convertLet, prettyPrint, parseLet, countReds, compileArith,
 
 import Data.Char
 import Parsing
---import Sheet7
 
 -- Challenge 1
 data Expr = App Expr Expr | Let [Int] Expr Expr | Var Int deriving (Show,Eq)
 data LamExpr = LamApp LamExpr LamExpr | LamAbs Int LamExpr | LamVar Int deriving (Show,Eq)
---data Maybe a = Just a | Nothing
---     deriving (Eq, Ord)
-
 
 
 -- convert a let expression to lambda expression
@@ -26,12 +22,13 @@ convertLet (Var int) = (LamAbs int (LamVar int))
 convertLet (Let list expr1 expr2)
   | length list == 1 = LamApp (LamAbs (head list) (convert expr2)) (convert expr1)
   | length list == 2 = LamApp (LamAbs (head list) (convert expr2)) (convertLet expr1)
-  | otherwise = LamApp (LamAbs (head list) (convert expr2)) (helperLet (convert expr1) (tail list)) --TODO: this is not correct and need to fix although the test return true
+  | otherwise =        LamApp (LamAbs (head list) (convert expr2)) (helperLet (convert expr1) (tail list)) --TODO: why the recursion is true for more than 2 ?
 --convertLet (Let list expr1 expr2) = LamApp (LamAbs (head list) (convert expr2))(LamAbs (head $ tail list) (convert expr1))
 
 
 helperLet :: LamExpr -> [Int] -> LamExpr
---helperLet (Var int) list = LamApp (LamAbs (head list) (convert expr2)) (convertLet expr1) --TODO: because if the expression only has 1 var, this is the way to go, can it be var and the list has more than 1 elt ?
+--helperLet (Var int) list = LamApp (LamAbs (head list) (convert expr2)) (convertLet expr1)
+--TODO: because if the expression only has 1 var, this is the way to go, can it be var and the list has more than 1 elt ?
 helperLet (LamApp expr1 expr2) [] = (LamApp expr1 expr2)
 helperLet (LamApp expr1 expr2) list = (LamAbs (head list) (helperLet (LamApp expr1 expr2) (tail list)))
 
@@ -50,9 +47,6 @@ convert :: Expr -> LamExpr
 convert expr | getType expr == "Var" = convertVar expr
              | getType expr == "Let" = convertLet expr
              | getType expr == "App" = convertApp expr
-
--- "Test 3: convertLet(let x1 x2 x3 = x3 x2 in x1 x4) equivLam LamApp (LamAbs 1 (LamApp (LamVar 1) (LamVar 4))) (LamAbs 2 (LamAbs 3 (LamApp (LamVar 3) (LamVar 2))))",
--- convertLet (Let [1,2,3] (App (Var 3) (Var 2)) (App (Var 1) (Var 4))) `equivLam` LamApp (LamAbs 1 (LamApp (LamVar 1) (LamVar 4))) (LamAbs 2 (LamAbs 3 (LamApp (LamVar 3) (LamVar 2))))
 
 
 getType :: Expr ->  String
@@ -89,6 +83,11 @@ convert2String (App expr1 expr2)
   | getType expr2 == "App" = (convert2String expr1) ++ " (" ++ (convert2String expr2) ++")"
   | otherwise = (convert2String expr1) ++ " " ++ (convert2String expr2)
 
+-- (x1 let x2=x3 in x4) x5" is equivalent to "x1 (let x2=x3 in x4) x5
+--TODO: how to check that the way i deal with bracket here is correct ?
+-- lambda calculus is left associate, convert back to LamdaCalculus to check
+
+
 -- Challenge 3
 -- parse a let expression
 parseLet :: String -> Maybe Expr
@@ -122,9 +121,6 @@ var = do symbol "x"
 
 recursionOnVar :: (Expr, String) -> (Expr, String)
 recursionOnVar (ex,"") = (ex,"")
---case recursionOnVar (ex,"")of
---  (n, []) -> n
-
 recursionOnVar (expr,str) = (App expr (fst $ head $ (parse factor str)), snd $ head (parse factor str))
 
 factor :: Parser Expr
@@ -139,13 +135,12 @@ exprX :: Parser Expr
 exprX = do symbol "x"
            n <- nat
            symbol "x"
-           m <- nat
-           return (App (Var n) (Var m))
+           m <- exprX
+           return (App (Var n) m)
          <|>
           do symbol "x"
              n <- nat
              return (Var n)
-
 
 exprA :: Parser Expr
 exprA = do
@@ -167,28 +162,12 @@ exprL = do symbol "let"
               do c2 <- exprC
                  return (Let list c1 c2)
 
-
-
-
-
 exprC :: Parser Expr
 exprC = do a <- exprA
            return a
     <|> do l <- exprL
            return l
 
---exprD :: Parser Expr
---exprD = do symbol "x"
---           n <- nat
---           return (Var n)
---
---exprE :: Parser [Expr]
---exprE = do d <- exprD
---           do e <- exprE
---              return e
---           <|>
---           do x <- factor
---              return x
 
 getInt :: Expr -> [Int]
 getInt (Var x) = [x]
@@ -325,6 +304,8 @@ lamTest = LamApp (LamApp lamTestSub1 (LamVar 3)) lamTestSub3
 
 -- Challenge 5
 -- compile an arithmetic expression into a lambda calculus equivalent
+--TODO: write a parser for this.
+
 compileArith :: String -> Maybe LamExpr
 -- replace the definition below with your solution
 compileArith s = Nothing
@@ -333,21 +314,20 @@ compileArith s = Nothing
 encodding :: Int -> LamExpr
 encodding 0 = (LamAbs 1 (LamAbs 2 (LamVar 2)))
 encodding 1 = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
+encodding n = (LamAbs 1 (LamAbs 2 (genEncodding n)))
 
---plus :: LambExpr -> LamExpr -> LamExpr
---plus expr (LamAbs 1 (LamAbs 2 (LamVar 2))) =
--- where
-succ1 =            (LamApp (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2)))) (LamAbs 1 (LamAbs 2 (LamAbs 3 (LamApp (LamVar 2) (LamApp (LamApp (LamVar 1) (LamVar 2)) (LamVar 3)))))))
-zero = (LamAbs 1 (LamAbs 2 (LamVar 2)))
-one = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
-two = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamApp (LamVar 1) (LamVar 2)))))
-betaEq = (LamApp succ1 (encodding 0))
+genEncodding :: Int -> LamExpr
+genEncodding 0 = LamVar 2
+genEncodding 1 = (LamApp (LamVar 1) (LamVar 2))
+genEncodding n = (LamApp (LamVar 1) (genEncodding (n-1)))
 
-lambdaExpr0 = (LamAbs 1 (LamAbs 2 (LamVar 2)))
-
---test1  = evalcbv (LamApp succ1 zero) --TODO: investigate on this
---test1' = evalcbv (LamApp zero succ1)
---test2  = evalcbn (LamApp succ1 one)
+--succ1 = (LamAbs 1 (LamAbs 2 (LamAbs 3 (LamApp (LamVar 2) (LamApp (LamApp (LamVar 1) (LamVar 2)) (LamVar 3))))))
+--zero = (LamAbs 1 (LamAbs 2 (LamVar 2)))
+--one = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
+--two = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamApp (LamVar 1) (LamVar 2)))))
+--betaEq = (LamApp (encodding 1) succ1)
+--
+--lambdaExpr0 = (LamAbs 1 (LamAbs 2 (LamVar 2)))
 
 qsort [] = []
 qsort (a:as) = qsort left ++ [a] ++ qsort right
