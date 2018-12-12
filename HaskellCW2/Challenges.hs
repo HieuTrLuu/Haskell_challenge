@@ -142,6 +142,7 @@ exprX = do symbol "x"
              n <- nat
              return (Var n)
 
+--TODO: fix the parseLet"x1 (x2 x3)" - exprA suppose to deal with this but not sure what happens ?
 exprA :: Parser Expr
 exprA = do
   x <- factor
@@ -182,6 +183,8 @@ getIntList (input, list) | str == "" = append list num
   num = getInt $ fst (head temp)
   --buffer = parse exprA str
 
+-- combine 2 [Int] list in correct order
+--e.g append [1,2] [3,4] = [1,2,3,4]
 append :: [Int] -> [Int] -> [Int]
 append xs ys = foldr (\x y -> x:y) ys xs
 
@@ -258,9 +261,9 @@ evalLI (LamApp e1 e2) = LamApp (evalLI e1) e2
 evalRI :: LamExpr -> LamExpr
 evalRI (LamVar x) = LamVar x
 evalRI (LamAbs int x) = (LamAbs int x)
-evalRI (LamApp (LamAbs int1 expr) e2@(LamVar int2)) = subst expr int1 e2
 evalRI (LamApp expr (LamApp (LamAbs int e1@(LamVar v1)) e2@(LamVar v2))) = LamApp expr (subst e1 int e2)
 evalRI (LamApp expr (LamApp (LamAbs x e1) e@(LamAbs y e2))) = LamApp expr (subst e1 x e)
+evalRI (LamApp (LamAbs int1 expr) e2) = subst expr int1 e2
 evalRI (LamApp e1 e2@(LamVar int)) = LamApp (evalRI e1) e2
 evalRI (LamApp e1 e2) = LamApp e1 (evalRI e2)
 
@@ -283,7 +286,7 @@ wrong = (LamApp (LamAbs 2 (LamVar 3)) (LamVar 5))
 
 reductions :: (LamExpr -> LamExpr) -> LamExpr -> [ (LamExpr, LamExpr) ]
 reductions ss e = [ p | p <- zip evals (tail evals) ]
-   where evals = takeWhile (\x -> (getLambdaType x) /= "Var") $ iterate ss e
+   where evals = takeWhile (\x -> (ss e) == (ss $ ss e)) $ iterate ss e
 
 
 
