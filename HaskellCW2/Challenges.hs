@@ -259,40 +259,17 @@ eval1cbn (LamApp (LamAbs x e1) e2) = subst e1 x e2
 eval1cbn (LamApp e1 e2) = (LamApp (eval1cbn e1) e2)
 
 eval1cbv :: LamExpr -> LamExpr
---eval1cbv (LamVar x) = (LamVar x)
---eval1cbv (LamApp (LamAbs x (LamVar y)) (LamVar z)) | x==y = (LamVar z)
---                                                   | x/=y = (LamVar y)
-eval1cbv (LamAbs x e) = subst (LamAbs x e) x e
-eval1cbv (LamApp (LamAbs x e1) e@(LamAbs y e2)) = subst e1 x e
+eval1cbv (LamAbs x e) = (LamAbs x e)
+eval1cbv (LamApp (LamAbs x e1) e@(LamApp y e2)) = subst e1 x e
 eval1cbv (LamApp e@(LamAbs x e1) e2) = LamApp e (eval1cbv e2)
 eval1cbv (LamApp e1 e2) = LamApp (eval1cbv e1) e2
---eval1cbv (LamVar x) = (LamVar x)
-
---evalLI :: LamExpr -> LamExpr
-----evaluation of leftmost innermost (cbv)
---evalLI (LamVar x) = (LamVar x)
---evalLI (LamAbs x e) = evalLI e
-----evalLI (LamApp e@(LamAbs x e1) (LamVar y)) = subst e1 x (LamVar y) TODO: this is the first line what I include in the eval
---evalLI (LamApp (LamAbs x e1) e@(LamAbs y e2)) = subst e1 x e
---evalLI (LamApp e@(LamAbs x e1) e2) = LamApp e (evalLI e2)
---evalLI (LamApp e1 e2) = LamApp (evalLI e1) e2
-
---eval1cbv :: Expr -> Expr
---eval1cbv (Lam x e) = (Lam x e)
---eval1cbv (App (Lam x e1) e@(Lam y e2)) = subst e1 x e
---eval1cbv (App e@(Lam x e1) e2) = App e (eval1cbv e2)
---eval1cbv (App e1 e2) = App (eval1cbv e1) e2
 
 
---eval1cbv' :: LamExpr -> LamExpr
---eval1cbv' (LamAbs x e) = (LamAbs x eval1cbv')
-----eval1cbv' (LamApp e1@(LamAbs x (Var int)) e2@(LamAbs y e2)) = LamApp
---eval1cbv' (LamApp e@(LamAbs x e1@(LamVar input)) e2) = subst e1 x e2
---eval1cbv' (LamApp e@(LamAbs x e1) e2) = (LamApp  e2)
---eval1cbv' (LamApp e1 e2) = LamApp (eval1cbv' e1) e2
+
 
 evalLI :: LamExpr -> LamExpr
 evalLI (LamVar x) = LamVar x
+evalLI (LamAbs x e) = (LamAbs x e)
 evalLI (LamApp (LamAbs int e1@(LamVar v1)) e2@(LamVar v2)) = subst e1 int e2
 evalLI (LamApp (LamAbs x e1) e@(LamAbs y e2)) = subst e1 x e
 evalLI (LamApp e@(LamAbs int e1) e2) = subst e1 int e2
@@ -300,11 +277,13 @@ evalLI (LamApp e1@(LamVar int) e2) = LamApp e1 (evalLI e2)
 evalLI (LamApp e1 e2) = LamApp (evalLI e1) e2
 
 evalRI :: LamExpr -> LamExpr
+evalRI (LamVar x) = LamVar x
+evalRI (LamAbs int x) = (LamAbs int x)
 evalRI (LamApp (LamAbs int1 expr) e2@(LamVar int2)) = subst expr int1 e2
 evalRI (LamApp expr (LamApp (LamAbs int e1@(LamVar v1)) e2@(LamVar v2))) = LamApp expr (subst e1 int e2)
 evalRI (LamApp expr (LamApp (LamAbs x e1) e@(LamAbs y e2))) = LamApp expr (subst e1 x e)
 evalRI (LamApp e1 e2@(LamVar int)) = LamApp (evalRI e1) e2
-evalRI (LamApp e1 e2) = LamApp e1 (evalLI e2)
+evalRI (LamApp e1 e2) = LamApp e1 (evalRI e2)
 
 
 
@@ -319,9 +298,14 @@ wrong = (LamApp (LamAbs 2 (LamVar 3)) (LamVar 5))
 
 
 
+--reductions :: (LamExpr -> LamExpr) -> LamExpr -> [ (LamExpr, LamExpr) ]
+--reductions ss e = [ p | p <- zip evals (tail evals) ]
+--   where evals = takeWhile (\x -> (getLambdaType x) /= "Var") $ iterate ss e
+
 reductions :: (LamExpr -> LamExpr) -> LamExpr -> [ (LamExpr, LamExpr) ]
 reductions ss e = [ p | p <- zip evals (tail evals) ]
    where evals = takeWhile (\x -> (getLambdaType x) /= "Var") $ iterate ss e
+
 
 
 --evalcbn = eval eval1cbn
@@ -353,11 +337,14 @@ encodding 1 = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
 --plus :: LambExpr -> LamExpr -> LamExpr
 --plus expr (LamAbs 1 (LamAbs 2 (LamVar 2))) =
 -- where
-succ1 = (LamApp (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2)))) (LamAbs 1 (LamAbs 2 (LamAbs 3 (LamApp (LamVar 2) (LamApp (LamApp (LamVar 1) (LamVar 2)) (LamVar 3)))))))
+succ1 =            (LamApp (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2)))) (LamAbs 1 (LamAbs 2 (LamAbs 3 (LamApp (LamVar 2) (LamApp (LamApp (LamVar 1) (LamVar 2)) (LamVar 3)))))))
 zero = (LamAbs 1 (LamAbs 2 (LamVar 2)))
 one = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
 two = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamApp (LamVar 1) (LamVar 2)))))
+betaEq = (LamApp succ1 (encodding 0))
+
 lambdaExpr0 = (LamAbs 1 (LamAbs 2 (LamVar 2)))
+
 --test1  = evalcbv (LamApp succ1 zero) --TODO: investigate on this
 --test1' = evalcbv (LamApp zero succ1)
 --test2  = evalcbn (LamApp succ1 one)
@@ -366,6 +353,16 @@ qsort [] = []
 qsort (a:as) = qsort left ++ [a] ++ qsort right
   where (left,right) = (filter (<=a) as, filter (>a) as)
 
+eval :: (LamExpr -> LamExpr) -> LamExpr -> LamExpr
+eval ss = fst . head . dropWhile (uncurry (/=)) . reductions ss
+
+trace :: (LamExpr -> LamExpr) -> LamExpr -> [LamExpr]
+trace ss  = (map fst) . takeWhile (uncurry (/=)) .  reductions ss
+
+evalcbn = eval eval1cbn
+tracecbn = trace eval1cbn
+evalcbv = eval eval1cbv
+tracecbv = trace eval1cbv
 
 --TODO: finish the reduction then we are done
 --TODO: sorry I forgot about the parser on 5
