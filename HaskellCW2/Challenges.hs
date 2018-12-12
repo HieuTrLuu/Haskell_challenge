@@ -4,7 +4,7 @@
 -- THAT YOU MAY NOT CHANGE THE FUNCTION TYPE SIGNATURES NOR TYPE DEFINITIONS
 -- This module statement makes public only the specified functions and types
 -- DO NOT CHANGE THIS LIST OF EXPORTED FUNCTIONS AND TYPES
-module Challenges (convertLet, prettyPrint, parseLet, countReds, compileArith, evalcbv,
+module Challenges (convertLet, prettyPrint, parseLet, countReds, compileArith,
     Expr(App, Let, Var), LamExpr(LamApp, LamAbs, LamVar)) where
 
 import Data.Char
@@ -212,10 +212,23 @@ append xs ys = foldr (\x y -> x:y) ys xs
 -- count reductions using two different strategies
 countReds :: LamExpr -> Int -> (Maybe Int, Maybe Int)
 -- replace the definition below with your solution
+countReds e limit = (first, second)
+  where
+    first = countLI e limit
+    second = countRI e limit
 
-countReds e limit = (Nothing, Nothing)
+countRI ::LamExpr -> Int -> Maybe Int
+countRI e limit | count <= limit = Just (count)
+                | otherwise = Nothing
+  where
+    count = (length $ reductions evalRI e) +1
 
--- data LamExpr = LamApp LamExpr LamExpr | LamAbs Int LamExpr | LamVar Int deriving (Show,Eq)
+countLI ::LamExpr -> Int -> Maybe Int
+countLI e limit | count <= limit = Just (count)
+                | otherwise = Nothing
+  where
+    count = (length $ reductions evalLI e) +1
+--TODO: fix the part nothing part in challange4
 
 subst :: LamExpr -> Int ->  LamExpr -> LamExpr
 subst (LamVar x) y e | x == y = e
@@ -279,7 +292,6 @@ eval1cbv (LamApp e1 e2) = LamApp (eval1cbv e1) e2
 --eval1cbv' (LamApp e1 e2) = LamApp (eval1cbv' e1) e2
 
 evalLI :: LamExpr -> LamExpr
---evalLI (LamAbs x e) = (LamAbs x e)
 evalLI (LamVar x) = LamVar x
 evalLI (LamApp (LamAbs int e1@(LamVar v1)) e2@(LamVar v2)) = subst e1 int e2
 evalLI (LamApp (LamAbs x e1) e@(LamAbs y e2)) = subst e1 x e
@@ -288,8 +300,6 @@ evalLI (LamApp e1@(LamVar int) e2) = LamApp e1 (evalLI e2)
 evalLI (LamApp e1 e2) = LamApp (evalLI e1) e2
 
 evalRI :: LamExpr -> LamExpr
---evalLI (LamAbs x e) = (LamAbs x e)
---evalRI (LamVar x) = LamVar x
 evalRI (LamApp (LamAbs int1 expr) e2@(LamVar int2)) = subst expr int1 e2
 evalRI (LamApp expr (LamApp (LamAbs int e1@(LamVar v1)) e2@(LamVar v2))) = LamApp expr (subst e1 int e2)
 evalRI (LamApp expr (LamApp (LamAbs x e1) e@(LamAbs y e2))) = LamApp expr (subst e1 x e)
@@ -314,18 +324,10 @@ reductions ss e = [ p | p <- zip evals (tail evals) ]
    where evals = takeWhile (\x -> (getLambdaType x) /= "Var") $ iterate ss e
 
 
-eval :: (LamExpr -> LamExpr) -> LamExpr -> LamExpr
-eval ss = fst . head . dropWhile (uncurry (/=)) . reductions ss
-
-trace :: (LamExpr -> LamExpr) -> LamExpr -> [LamExpr]
-trace ss  = (map fst) . takeWhile (uncurry (/=)) .  reductions ss
-
-
-
-evalcbn = eval eval1cbn
-tracecbn = trace eval1cbn
-evalcbv = eval eval1cbv
-tracecbv = trace eval1cbv
+--evalcbn = eval eval1cbn
+--tracecbn = trace eval1cbn
+--evalcbv = eval eval1cbv
+--tracecbv = trace eval1cbv
 
 lambdaExpr5 = (LamApp (LamAbs 1 (LamAbs 2 (LamVar 1))) (LamVar 3))
 lambdaExpr6 = LamApp lambdaExpr5 (LamApp (LamAbs 4 (LamVar 4)) (LamVar 5))
@@ -355,10 +357,10 @@ succ1 = (LamApp (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2)))) (LamAbs 1 (
 zero = (LamAbs 1 (LamAbs 2 (LamVar 2)))
 one = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
 two = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamApp (LamVar 1) (LamVar 2)))))
-
-test1  = evalcbv (LamApp succ1 zero) --TODO: investigate on this
-test1' = evalcbv (LamApp zero succ1)
-test2  = evalcbn (LamApp succ1 one)
+lambdaExpr0 = (LamAbs 1 (LamAbs 2 (LamVar 2)))
+--test1  = evalcbv (LamApp succ1 zero) --TODO: investigate on this
+--test1' = evalcbv (LamApp zero succ1)
+--test2  = evalcbn (LamApp succ1 one)
 
 qsort [] = []
 qsort (a:as) = qsort left ++ [a] ++ qsort right
