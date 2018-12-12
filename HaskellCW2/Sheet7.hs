@@ -1,8 +1,6 @@
 -- Example Lambda calculus interpreter
-module Sheet7 (module Sheet7) where
-type Environment = [(String, Expr)]
 
-data Expr = Var String | Lam String Expr | App Expr Expr | Closure Expr Environment
+data Expr = Var String | Lam String Expr | App Expr Expr
   deriving (Eq, Show, Read)
 
 free :: String -> Expr -> Bool
@@ -38,9 +36,6 @@ eval ss = fst . head . dropWhile (uncurry (/=)) . reductions ss
 trace :: (Expr -> Expr) -> Expr -> [Expr]
 trace ss  = (map fst) . takeWhile (uncurry (/=)) .  reductions ss
 
---data Expr = Var String | Lam String Expr | App Expr Expr | Closure Expr Environment
--- TODO: why is there no var String ?
-
 eval1cbv :: Expr -> Expr
 eval1cbv (Lam x e) = (Lam x e)
 eval1cbv (App (Lam x e1) e@(Lam y e2)) = subst e1 x e
@@ -74,9 +69,3 @@ term2 = mysnd (pair myid term1)
 
 ww = Lam "x" (App (Var "x") (Var "x"))
 omega = App ww ww
-
-lambdaExpr5 = (App (Lam "1" (Lam "2" (Var "1"))) (Var "3"))
-lambdaExpr6 = App lambdaExpr5 (App (Lam "4" (Var "4")) (Var "5"))
-
-
---data Expr = Var String | Lam String Expr | App Expr Expr | Closure Expr Environment

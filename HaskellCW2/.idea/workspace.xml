@@ -2,15 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="de07bb45-8b69-4ce0-a003-fb29d85d34ce" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/PropLogPres.hs" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/programming-in-haskell/13-monadic-parsing/Parsing.hs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Challenges.hs" beforeDir="false" afterPath="$PROJECT_DIR$/Challenges.hs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Parsing.hs" beforeDir="false" afterPath="$PROJECT_DIR$/Parsing.hs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sheet7.hs" beforeDir="false" afterPath="$PROJECT_DIR$/Sheet7.hs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/programming-in-haskell" beforeDir="false" afterPath="$PROJECT_DIR$/programming-in-haskell" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/programming-in-haskell/13-monadic-parsing/13.08-arithmetic-expressions.hs" beforeDir="false" afterPath="$PROJECT_DIR$/programming-in-haskell/13-monadic-parsing/13.08-arithmetic-expressions.hs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/programming-in-haskell/13-monadic-parsing/13.09-calculator.hs" beforeDir="false" afterPath="$PROJECT_DIR$/programming-in-haskell/13-monadic-parsing/13.09-calculator.hs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/qsort.hs" beforeDir="false" afterPath="$PROJECT_DIR$/qsort.hs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.hs" beforeDir="false" afterPath="$PROJECT_DIR$/test.hs" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -21,14 +20,14 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.5">
+    <splitter split-orientation="horizontal" split-proportion="0.43715194">
       <split-first>
         <leaf>
           <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/PropLogPres.hs">
+            <entry file="file://$PROJECT_DIR$/test.hs">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="760">
-                  <caret line="43" column="11" lean-forward="true" selection-start-line="43" selection-start-column="11" selection-end-line="43" selection-end-column="11" />
+                <state relative-caret-position="323">
+                  <caret line="74" column="74" selection-start-line="74" selection-start-column="10" selection-end-line="74" selection-end-column="74" />
                 </state>
               </provider>
             </entry>
@@ -38,10 +37,10 @@
       <split-second>
         <leaf>
           <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/Parsing.hs">
+            <entry file="file://$PROJECT_DIR$/Challenges.hs">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="424">
-                  <caret line="141" column="5" lean-forward="true" selection-start-line="141" selection-start-column="5" selection-end-line="141" selection-end-column="5" />
+                <state relative-caret-position="2026">
+                  <caret line="354" selection-start-line="6" selection-end-line="354" />
                 </state>
               </provider>
             </entry>
@@ -57,9 +56,27 @@
       <find>Lamb</find>
       <find>getInt</find>
       <find>many</find>
-      <find>maybe</find>
       <find>nat</find>
       <find>nats</find>
+      <find>rename</find>
+      <find>iterate</find>
+      <find>maybe</find>
+      <find>succ</find>
+      <find>equivLam</find>
+      <find>eval</find>
+      <find>eval1cbv'</find>
+      <find>reduction</find>
+      <find>evalLI</find>
+      <find>eval1cbv</find>
+      <find>red</find>
+      <find>reductions</find>
+      <find>evalRI</find>
+      <find>more sophisticated test</find>
+      <find>challenge 3</find>
+      <find>recursionOnVar</find>
+      <find>remspace</find>
+      <find>reduc</find>
+      <find>count</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -72,18 +89,20 @@
         <option value="$PROJECT_DIR$/worksheet/worksheet4.hs" />
         <option value="$PROJECT_DIR$/debugging.hs" />
         <option value="$PROJECT_DIR$/qsort.hs" />
-        <option value="$PROJECT_DIR$/test.hs" />
-        <option value="$PROJECT_DIR$/Challenges.hs" />
         <option value="$PROJECT_DIR$/Parser.hs" />
         <option value="$PROJECT_DIR$/programming-in-haskell/13-monadic-parsing/13.08-arithmetic-expressions.hs" />
         <option value="$PROJECT_DIR$/PropLogPres.hs" />
         <option value="$PROJECT_DIR$/Parsing.hs" />
+        <option value="$PROJECT_DIR$/customTest.hs" />
+        <option value="$PROJECT_DIR$/Sheet7.hs" />
+        <option value="$PROJECT_DIR$/test.hs" />
+        <option value="$PROJECT_DIR$/Challenges.hs" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="y" value="25" />
-    <option name="width" value="2560" />
+    <option name="width" value="1280" />
     <option name="height" value="1415" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -92,8 +111,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -105,26 +122,35 @@
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1544269191238" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1544649074919" />
+    <property name="js.buildTools.grunt.grunt-cli.package" value="" />
+    <property name="js.buildTools.gulp.gulp_package_dir" value="" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="project.structure.last.edited" value="SDKs" />
-    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/worksheet" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/programming-in-haskell/13-monadic-parsing" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/worksheet" />
+    </key>
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="ghci" />
+    </option>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -156,16 +182,22 @@
       <workItem from="1544007382255" duration="8355000" />
       <workItem from="1544038838379" duration="5396000" />
       <workItem from="1544268544863" duration="646000" />
+      <workItem from="1544525072211" duration="12945000" />
+      <workItem from="1544598636271" duration="6584000" />
+      <workItem from="1544610480111" duration="328000" />
+      <workItem from="1544610825672" duration="149000" />
+      <workItem from="1544612568351" duration="28436000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="27697000" />
+    <option name="totallyTimeSpent" value="81116000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="25" width="2560" height="1415" extended-state="7" />
+    <frame x="0" y="25" width="2560" height="1415" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.29276055" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.29952267" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -175,7 +207,7 @@
       <window_info id="Favorites" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49960223" weight="0.32970452" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -183,8 +215,9 @@
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="10" visible="true" weight="0.4984448" />
-      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
+      <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.4988067" weight="0.41524106" />
+      <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.50119334" side_tool="true" weight="0.41524106" />
+      <window_info anchor="bottom" id="Messages" order="12" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -214,13 +247,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/comp2209challenges2018tests.hs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" column="7" lean-forward="true" selection-end-line="196" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/debugging.hs">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -238,13 +264,6 @@
     <entry file="file://$PROJECT_DIR$/eval.hs">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/test.hs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="75" column="23" selection-start-line="75" selection-start-column="23" selection-end-line="75" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Parser.hs" />
     <entry file="file://$PROJECT_DIR$/programming-in-haskell/13-monadic-parsing/Parsing.hs">
       <provider selected="true" editor-type-id="text-editor" />
@@ -252,13 +271,6 @@
     <entry file="file://$PROJECT_DIR$/programming-in-haskell/13-monadic-parsing/13.09-calculator.hs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-2025" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Challenges.hs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="20" column="22" selection-start-line="20" selection-start-column="22" selection-end-line="20" selection-end-column="22" />
-        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/programming-in-haskell/13-monadic-parsing/13.08-arithmetic-expressions.hs">
@@ -279,6 +291,41 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="424">
           <caret line="141" column="5" lean-forward="true" selection-start-line="141" selection-start-column="5" selection-end-line="141" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/comp2209challenges2018tests.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="18" column="7" lean-forward="true" selection-end-line="196" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/customTest.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="551">
+          <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Sheet7.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret lean-forward="true" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="74" column="74" selection-start-line="74" selection-start-column="10" selection-end-line="74" selection-end-column="74" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Challenges.hs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2026">
+          <caret line="354" selection-start-line="6" selection-end-line="354" />
         </state>
       </provider>
     </entry>
