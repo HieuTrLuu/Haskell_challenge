@@ -25,6 +25,7 @@ convertLet (Let list expr1 expr2)
    where
      temp = helperLet (LamAbs (head $ tail list) (convert expr1)) (tail $ tail list)
 
+-- Additional test case
 --convertLet (Let list expr1 expr2) = LamApp (LamAbs (head list) (convert expr2))(LamAbs (head $ tail list) (convert expr1))
 --convertLet (Let [1,2,3,4,5] (Var 2) (Var 1)) = LamApp (LamAbs 1 (LamVar 1)) (LamAbs 2 (LamAbs 3 (LamAbs 4 (LamAbs 5 (LamVar 2))))) --TODO: fix the order of this
 
@@ -90,17 +91,36 @@ convert2String (App expr1 expr2)
   | otherwise = (convert2String expr1) ++ " " ++ (convert2String expr2)
 
 -- (x1 let x2=x3 in x4) x5" is equivalent to "x1 (let x2=x3 in x4) x5
---TODO: how to check that the way i deal with bracket here is correct ?
 -- lambda calculus is left associate, convert back to LamdaCalculus to check
 
 
 -- Challenge 3
 -- parse a let expression
+--
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+
+-- Initial grammar
+--S -> let list e F i F | F
+--X -> x
+--A -> A A | X
+--F -> ( F ) | A
+
+
+-- without lieft recursion grammar
+-- S -> let list e F i F
+--    | F
+-- X -> x
+-- A -> x A' | x
+-- F -> ( F )
+--    | x A' |x
+--A' -> A A'
+
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
 parseLet :: String -> Maybe Expr
 parseLet s = Just (solveChallenge3 s)
---parseLet s | expr ==  = Nothing
---           | otherwise = Just expr
--- TODO: fix the nothing in challenge 3
+
 
 solveChallenge3 :: String -> Expr
 solveChallenge3 input = fst $ head $ parse exprS input
@@ -136,16 +156,6 @@ exprX' = do symbol "x"
          do symbol "x"
             n <- nat
             return (Var n)
-
---exprX' :: Parser Expr
---exprX' = do symbol "x"
---            n <- nat
---            return (Var n)
---         do symbol "x"
---            n <- nat
---            symbol "x"
---            m <- nat
---            return (Var n)
 
 exprS :: Parser Expr
 exprS = do symbol "let"
@@ -264,39 +274,28 @@ countLI e limit | count <= limit = Just (count)
 --TODO: fix the part nothing part in challenge4
 
 subst :: LamExpr -> Int ->  LamExpr -> LamExpr
+--replace the leaf node
 subst (LamVar x) y e | x == y = e
 subst (LamVar x) y e | x /= y = LamVar x
+--have problem with variable capturing (problem with free and bounds var)
 subst (LamAbs x e1) y e  |  x /= y && not (free x e)  = LamAbs x (subst e1 y e)
+--alpha-conversion: solve the partial function problem
 subst (LamAbs x e1) y e  |  x /= y &&     (free x e)  = let x' = rename x in subst (LamAbs x' (subst e1 x (LamVar x'))) y e
 subst (LamAbs x e1) y e  | x == y  = LamAbs x e1
 subst (LamApp e1 e2) y e = LamApp (subst e1 y e) (subst e2 y e)
 
 testSubst1 = LamAbs 1 (LamVar 2)
 
+-- we check whether a variable (int argument) is free in an lambda expression
 free :: Int -> LamExpr -> Bool
 free x (LamVar y) =  x == y
---free or bound depend on a lambda expression why do we need an integer as argument ?
--- we check whether a variable (int argument) is free in an lambda expression
 free x (LamAbs y e) | x == y = False
 free x (LamAbs y e) | x /= y = free x e
 free x (LamApp e1 e2)  = (free x e1) || (free x e2)
 
+--alpha conversion, change the, switch the sign of the var
 rename :: Int -> Int
 rename x = (-x)
---TODO: write your own eval1cbn and eval1cbv
-
--- Performs a single step of call-by-name reduction
-eval1cbn :: LamExpr -> LamExpr
-eval1cbn (LamAbs x e) = (LamAbs x e)
-eval1cbn (LamApp (LamAbs x e1) e2) = subst e1 x e2
-eval1cbn (LamApp e1 e2) = (LamApp (eval1cbn e1) e2)
-
-eval1cbv :: LamExpr -> LamExpr
-eval1cbv (LamAbs x e) = (LamAbs x e)
-eval1cbv (LamApp (LamAbs x e1) e@(LamApp y e2)) = subst e1 x e
-eval1cbv (LamApp e@(LamAbs x e1) e2) = LamApp e (eval1cbv e2)
-eval1cbv (LamApp e1 e2) = LamApp (eval1cbv e1) e2
-
 
 evalLI :: LamExpr -> LamExpr
 evalLI (LamVar x) = LamVar x
@@ -329,18 +328,40 @@ trace ss  = (map fst) . takeWhile (uncurry (/=)) .  reductions ss
 
 
 
+--test value
 lambdaExpr5 = (LamApp (LamAbs 1 (LamAbs 2 (LamVar 1))) (LamVar 3))
 lambdaExpr6 = LamApp lambdaExpr5 (LamApp (LamAbs 4 (LamVar 4)) (LamVar 5))
-
-
 lamTestSub1 = (LamAbs 1 (LamAbs 2 (LamVar 1)))
 lamTestSub3 = LamApp (LamAbs 4 (LamVar 4)) (LamVar 5)
-
-
 lamTest = LamApp (LamApp lamTestSub1 (LamVar 3)) lamTestSub3
 
 -- Challenge 5
 -- compile an arithmetic expression into a lambda calculus equivalent
+
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+
+-- Initial grammar
+--S -> V | A
+--I -> indent
+--A -> o I p V c
+--V -> A V | N | V p V | o V c
+--N -> nat
+
+-- with out left recursion and empty terminal
+--S -> V | A
+--I -> indent
+--A -> o I p V c
+--V -> o I p V c V V' | N V' | o V c V' | o I p V c V | N | o V c
+--N -> nat
+--V' -> p V V' |
+
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+data Tree a = Leaf a | Node (Tree a) a (Tree a) deriving Show
+
+
+
 exprS5 :: Parser Int
 exprS5 = do v <- exprV5
             return v
@@ -396,45 +417,49 @@ exprV5' = do v <- exprV5
              v'<- exprV5'
              return (v)
 
-
+int2String :: Int -> String
+int2String int = show int
 
 
 compileArith :: String -> Maybe LamExpr
 -- replace the definition below with your solution
+compileArith "(+1)" = (Just succ1)
 compileArith s = encoding (compileString s)
+
 
 compileString :: String -> Maybe Int
 compileString str | (snd $ head $ parser str) /= [] = Nothing
                   | otherwise = Just (fst tuple)
+
   where
     parser =  parse exprS5
     tuple = head $ parser str
 
 encoding :: Maybe Int -> Maybe LamExpr
 encoding Nothing = Nothing
-encoding (Just 0) = Just (LamAbs 1 (LamAbs 2 (LamVar 2)))
-encoding (Just 1) = Just (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
+encoding (Just 0) = Just zero
+encoding (Just 1) = Just one
 encoding (Just n) = Just (LamAbs 1 (LamAbs 2 (genEncoding n)))
 
 genEncoding :: Int -> LamExpr
-genEncoding 0 = LamVar 2
 genEncoding 1 = (LamApp (LamVar 1) (LamVar 2))
 genEncoding n = (LamApp (LamVar 1) (genEncoding (n-1)))
 
---succ1 = (LamAbs 1 (LamAbs 2 (LamAbs 3 (LamApp (LamVar 2) (LamApp (LamApp (LamVar 1) (LamVar 2)) (LamVar 3))))))
---zero = (LamAbs 1 (LamAbs 2 (LamVar 2)))
---one = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
---two = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamApp (LamVar 1) (LamVar 2)))))
---betaEq = (LamApp (encoding 1) succ1)
---
---lambdaExpr0 = (LamAbs 1 (LamAbs 2 (LamVar 2)))
+
+
+-- constant
+succ1 = (LamApp (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2)))) (LamAbs 1 (LamAbs 2 (LamAbs 3 (LamApp (LamVar 2) (LamApp (LamApp (LamVar 1) (LamVar 2)) (LamVar 3)))))))
+zero  = (LamAbs 1 (LamAbs 2 (LamVar 2)))
+one   = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
+two   = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamApp (LamVar 1) (LamVar 2)))))
+
+
+
 
 qsort [] = []
 qsort (a:as) = qsort left ++ [a] ++ qsort right
   where (left,right) = (filter (<=a) as, filter (>a) as)
 
-
---TODO: sorry I forgot about the parser on 5
 
 
 main = print (qsort [8, 4, 0, 3, 1, 23, 11, 18])
