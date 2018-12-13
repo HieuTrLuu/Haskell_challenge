@@ -14,10 +14,9 @@ import Parsing
 data Expr = App Expr Expr | Let [Int] Expr Expr | Var Int deriving (Show,Eq)
 data LamExpr = LamApp LamExpr LamExpr | LamAbs Int LamExpr | LamVar Int deriving (Show,Eq)
 
-
+-- Main function from challenge 1
 -- convert a let expression to lambda expression
 convertLet :: Expr -> LamExpr
--- replace the definition below with your solution
 convertLet (Var int) = (LamAbs int (LamVar int))
 convertLet (Let list expr1 expr2)
   | length list == 1 = LamApp (LamAbs (head list) (convert expr2)) (convert expr1)
@@ -29,6 +28,8 @@ convertLet (Let list expr1 expr2)
 --convertLet (Let list expr1 expr2) = LamApp (LamAbs (head list) (convert expr2))(LamAbs (head $ tail list) (convert expr1))
 --convertLet (Let [1,2,3,4,5] (Var 2) (Var 1)) = LamApp (LamAbs 1 (LamVar 1)) (LamAbs 2 (LamAbs 3 (LamAbs 4 (LamAbs 5 (LamVar 2))))) --TODO: fix the order of this
 
+
+-- Intermidiate function help to do the recursion from type Expr -> LamExpr
 helperLet :: LamExpr -> [Int] -> LamExpr
 helperLet e@(LamVar int) list | length list == 0 = e
                               | otherwise = helperLet ((LamAbs (head list) e)) (tail list)
@@ -49,7 +50,7 @@ convertApp :: Expr -> LamExpr
 convertApp (App (Var int1) (Var int2)) = LamApp (convert (Var int1)) (convert (Var int2))
 convertApp expr = convert expr
 
-
+---- Total conversion form Expr -> LamExpr
 convert :: Expr -> LamExpr
 convert expr | getType expr == "Var" = convertVar expr
              | getType expr == "Let" = convertLet expr
@@ -69,8 +70,8 @@ getLambdaType (LamApp e1 e2) = "App"
 
 -- Challenge 2
 -- pretty print a let expression by converting it to a string
+--main function for challenge 2
 prettyPrint :: Expr -> String
--- replace the definition below with your solution
 prettyPrint e = convert2String e
 
 list2String :: [Int] -> String
@@ -104,6 +105,30 @@ solveChallenge3 input | length parseResult >0 = Just (fst $ head parseResult)
   where
     parseResult = parse exprC input
 
+
+
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+
+-- Initial grammar for question 3
+
+--S -> let list e F i F | F           (start symbol)
+--X -> xN                             (x1, x2, x3, ..)
+--A -> A A | X                        (multiple x)
+--F -> ( F ) | A                      (factor that solve the bracket
+--
+
+-- After remove left recursion grammar
+-- S -> let list e F i F | F
+-- X -> x
+-- A -> x A'  | x
+-- F -> ( F ) | x A' |x
+--A' -> A A'
+----------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+-----------    Each functions below parse a non-terminal in the grammar ---------
+---------------------------------------------------------------------------------
 
 token :: Parser a -> Parser a
 token p = do
@@ -165,27 +190,12 @@ exprL = do symbol "let"
                  return (Let list c1 c2)
 
 
-
-
-
 exprC :: Parser Expr
 exprC = do a <- exprA
            return a
     <|> do l <- exprL
            return l
 
---exprD :: Parser Expr
---exprD = do symbol "x"
---           n <- nat
---           return (Var n)
---
---exprE :: Parser [Expr]
---exprE = do d <- exprD
---           do e <- exprE
---              return e
---           <|>
---           do x <- factor
---              return x
 
 getInt :: Expr -> [Int]
 getInt (Var x) = [x]
@@ -204,26 +214,13 @@ append :: [Int] -> [Int] -> [Int]
 append xs ys = foldr (\x y -> x:y) ys xs
 
 -- Challenge 4
+-- Main function for challenge 4
 -- count reductions using two different strategies
 countReds :: LamExpr -> Int -> (Maybe Int, Maybe Int)
--- replace the definition below with your solution
 countReds e limit = (first, second)
   where
     first = countLI e limit
     second = countRI e limit
-
-countRI ::LamExpr -> Int -> Maybe Int
-countRI e limit | count <= limit = Just (count)
-                | otherwise = Nothing
-  where
-    count = length $ trace evalRI e
-
-countLI ::LamExpr -> Int -> Maybe Int
-countLI e limit | count <= limit = Just (count)
-                | otherwise = Nothing
-  where
-    count = length $ trace evalLI e
---TODO: fix the part nothing part in challenge4
 
 subst :: LamExpr -> Int ->  LamExpr -> LamExpr
 --replace the leaf node
@@ -236,7 +233,7 @@ subst (LamAbs x e1) y e  |  x /= y &&     (free x e)  = let x' = rename x in sub
 subst (LamAbs x e1) y e  | x == y  = LamAbs x e1
 subst (LamApp e1 e2) y e = LamApp (subst e1 y e) (subst e2 y e)
 
-testSubst1 = LamAbs 1 (LamVar 2)
+-- testSubst1 = LamApp (LamAbs 1 (LamVar 2)) (LamVar 3)
 
 -- we check whether a variable (int argument) is free in an lambda expression
 free :: Int -> LamExpr -> Bool
@@ -249,6 +246,7 @@ free x (LamApp e1 e2)  = (free x e1) || (free x e2)
 rename :: Int -> Int
 rename x = (-x)
 
+--evaluate left inner most
 evalLI :: LamExpr -> LamExpr
 evalLI (LamVar x) = LamVar x
 evalLI (LamAbs x e) = (LamAbs x e)
@@ -258,6 +256,7 @@ evalLI (LamApp e@(LamAbs int e1) e2) = subst e1 int e2
 evalLI (LamApp e1@(LamVar int) e2) = LamApp e1 (evalLI e2)
 evalLI (LamApp e1 e2) = LamApp (evalLI e1) e2
 
+--evaluate right inner most
 evalRI :: LamExpr -> LamExpr
 evalRI (LamVar x) = LamVar x
 evalRI (LamAbs int x) = (LamAbs int x)
@@ -268,15 +267,34 @@ evalRI (LamApp e1 e2@(LamVar int)) = LamApp (evalRI e1) e2
 evalRI (LamApp e1 e2) = LamApp e1 (evalRI e2)
 
 
+--reduce the expression until it can no longer be reduced
 reductions :: (LamExpr -> LamExpr) -> LamExpr -> [ (LamExpr, LamExpr) ]
 reductions ss e = [ p | p <- zip evals (tail evals) ]
    where evals = iterate ss e
 
+--return the final expression
 eval :: (LamExpr -> LamExpr) -> LamExpr -> LamExpr
 eval ss = fst . head . dropWhile (uncurry (/=)) . reductions ss
 
+--list of process in reducing the expression
 trace :: (LamExpr -> LamExpr) -> LamExpr -> [LamExpr]
 trace ss  = (map fst) . takeWhile (uncurry (/=)) .  reductions ss
+
+-- RI: right inner most
+-- LI: left inner most
+
+countRI ::LamExpr -> Int -> Maybe Int
+countRI e limit | count <= limit = Just (count)
+                | otherwise = Nothing
+  where
+    count = length $ trace evalRI e
+
+countLI ::LamExpr -> Int -> Maybe Int
+countLI e limit | count <= limit = Just (count)
+                | otherwise = Nothing
+  where
+    count = length $ trace evalLI e
+
 
 
 
@@ -294,11 +312,11 @@ lamTest = LamApp (LamApp lamTestSub1 (LamVar 3)) lamTestSub3
 ----------------------------------------------------------------------------------
 
 -- Initial grammar
---S -> V | A
---I -> indent
---A -> o I p V c
---V -> A V | N | V p V | o V c
---N -> nat
+--S -> V | A                                          (Initial non-terminal)
+--I -> indent                                         (indent)
+--A -> o I p V c                                      (section)
+--V -> A V | N | V p V | o V c                        (value)
+--N -> nat                                            (number)
 
 -- with out left recursion and empty terminal
 --S -> V | A
@@ -311,6 +329,12 @@ lamTest = LamApp (LamApp lamTestSub1 (LamVar 3)) lamTestSub3
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
 data Tree a = Leaf a | Node (Tree a) a (Tree a) deriving Show
+
+
+---------------------------------------------------------------------------------
+-----------    Each functions below parse a non-terminal in the grammar ---------
+-----    The 5 is used to distinguish to other parser in others challenges ------
+---------------------------------------------------------------------------------
 
 
 
@@ -335,24 +359,24 @@ exprV5 = do symbol "("
             symbol ")"
             v2 <- exprV5
             v' <- exprV5'
-            return (v1 + v2 + v') --TODO: what do i return here ?
+            return (v1 + v2 + v')
          <|>
          do n <- nat
             v' <- exprV5'
-            return (n) --TODO: what do i return here ?
+            return (n)
          <|>
          do symbol "("
             v <- exprV5
             symbol ")"
             v' <- exprV5'
-            return (v) --TODO: what do i return here ?
+            return (v)
          <|>
          do symbol "("
             symbol "+"
             v1 <- exprV5
             symbol ")"
             v2 <- exprV5
-            return (v1 + v2) --TODO: what do i return here ?
+            return (v1 + v2)
          <|>
          do n <- nat
             return n
@@ -372,9 +396,9 @@ exprV5' = do v <- exprV5
 int2String :: Int -> String
 int2String int = show int
 
-
+-------------------------------
+-- Main function for challenge 5
 compileArith :: String -> Maybe LamExpr
--- replace the definition below with your solution
 compileArith "(+1)" = (Just succ1)
 compileArith s = encoding (compileString s)
 
