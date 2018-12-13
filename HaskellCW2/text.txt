@@ -15,3 +15,20 @@ A' -> A A'
 
 
 A' can be empty
+
+C5
+
+S -> V | A
+I -> indent
+A -> o I p V c
+V -> A V | N | V p V | o V c
+N -> nat
+
+S -> V | A
+I -> indent
+A -> o I p V c
+V -> o I p V c V V' | N V' | o V c V' | o I p V c V | N | o V c
+N -> nat
+
+V' -> p V V' | ϵ
+

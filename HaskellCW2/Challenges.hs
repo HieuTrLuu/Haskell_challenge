@@ -21,16 +21,22 @@ convertLet :: Expr -> LamExpr
 convertLet (Var int) = (LamAbs int (LamVar int))
 convertLet (Let list expr1 expr2)
   | length list == 1 = LamApp (LamAbs (head list) (convert expr2)) (convert expr1)
-  | length list == 2 = LamApp (LamAbs (head list) (convert expr2)) (convertLet expr1)
-  | otherwise =        LamApp (LamAbs (head list) (convert expr2)) (helperLet (convert expr1) (tail list)) --TODO: why the recursion is true for more than 2 ?
+  | otherwise = LamApp (LamAbs (head list) (convert expr2)) (helperLet (convert expr1) (tail list))
+   where
+     temp = helperLet (LamAbs (head $ tail list) (convert expr1)) (tail $ tail list)
+
 --convertLet (Let list expr1 expr2) = LamApp (LamAbs (head list) (convert expr2))(LamAbs (head $ tail list) (convert expr1))
---convertLet (Let [1,2,3,4,5] (Var 2) (Var 1)) = LamApp (LamAbs 1 (LamVar 1)) (LamAbs 2 (LamAbs 3 (LamAbs 4 (LamAbs 5 (LamVar 2))))) --TODO: fix this
+--convertLet (Let [1,2,3,4,5] (Var 2) (Var 1)) = LamApp (LamAbs 1 (LamVar 1)) (LamAbs 2 (LamAbs 3 (LamAbs 4 (LamAbs 5 (LamVar 2))))) --TODO: fix the order of this
 
 helperLet :: LamExpr -> [Int] -> LamExpr
---helperLet (Var int) list = LamApp (LamAbs (head list) (convert expr2)) (convertLet expr1)
---TODO: because if the expression only has 1 var, this is the way to go, can it be var and the list has more than 1 elt ?
-helperLet (LamApp expr1 expr2) [] = (LamApp expr1 expr2)
-helperLet (LamApp expr1 expr2) list = (LamAbs (head list) (helperLet (LamApp expr1 expr2) (tail list)))
+helperLet e@(LamVar int) list | length list == 0 = e
+                              | otherwise = helperLet ((LamAbs (head list) e)) (tail list)
+
+helperLet e@(LamApp e1 e2) list | length list == 0 = e
+                                | otherwise = helperLet ((LamAbs (head list) e)) (tail list)
+
+helperLet e@(LamAbs int expr) list | length list == 0 = e
+                                   | otherwise = helperLet (LamAbs int (LamAbs (head list) expr)) (tail list)
 
 
 
@@ -40,7 +46,7 @@ convertVar expr = convert expr
 
 convertApp :: Expr -> LamExpr
 convertApp (App (Var int1) (Var int2)) = LamApp (convert (Var int1)) (convert (Var int2))
-convertApp expr =  convert expr
+convertApp expr = convert expr
 
 
 convert :: Expr -> LamExpr
@@ -118,11 +124,6 @@ var = do symbol "x"
       do symbol "x"
          n <- nat
          return (Var n)
-
---recursionOnVar :: (Expr, String) -> (Expr, String)
---recursionOnVar (ex,"") = (ex,"")
---recursionOnVar (expr,str) = (App expr (fst $ head $ (parse factor str)), snd $ head (parse factor str))
-
 
 
 exprX' :: Parser Expr
@@ -253,14 +254,14 @@ countRI ::LamExpr -> Int -> Maybe Int
 countRI e limit | count <= limit = Just (count)
                 | otherwise = Nothing
   where
-    count = (length $ reductions evalRI e) +1
+    count = length $ trace evalRI e
 
 countLI ::LamExpr -> Int -> Maybe Int
 countLI e limit | count <= limit = Just (count)
                 | otherwise = Nothing
   where
-    count = (length $ reductions evalLI e) +1
---TODO: fix the part nothing part in challange4
+    count = length $ trace evalLI e
+--TODO: fix the part nothing part in challenge4
 
 subst :: LamExpr -> Int ->  LamExpr -> LamExpr
 subst (LamVar x) y e | x == y = e
@@ -297,8 +298,6 @@ eval1cbv (LamApp e@(LamAbs x e1) e2) = LamApp e (eval1cbv e2)
 eval1cbv (LamApp e1 e2) = LamApp (eval1cbv e1) e2
 
 
-
-
 evalLI :: LamExpr -> LamExpr
 evalLI (LamVar x) = LamVar x
 evalLI (LamAbs x e) = (LamAbs x e)
@@ -318,32 +317,17 @@ evalRI (LamApp e1 e2@(LamVar int)) = LamApp (evalRI e1) e2
 evalRI (LamApp e1 e2) = LamApp e1 (evalRI e2)
 
 
-
-
-
--- custom lambda calculus expressions test values
-lam1 = (LamAbs 1 (LamVar 1))
---lambdaExpr5 = (LamApp (LamAbs 1 (LamAbs 2 (LamVar 1))) (LamVar 3))
-lambdaExpr6rhs = (LamApp (LamAbs 4 (LamVar 4)) (LamVar 5))
-
-wrong = (LamApp (LamAbs 2 (LamVar 3)) (LamVar 5))
-
-
-
---reductions :: (LamExpr -> LamExpr) -> LamExpr -> [ (LamExpr, LamExpr) ]
---reductions ss e = [ p | p <- zip evals (tail evals) ]
---   where evals = takeWhile (\x -> (getLambdaType x) /= "Var") $ iterate ss e
-
 reductions :: (LamExpr -> LamExpr) -> LamExpr -> [ (LamExpr, LamExpr) ]
 reductions ss e = [ p | p <- zip evals (tail evals) ]
-   where evals = takeWhile (\x -> (ss e) == (ss $ ss e)) $ iterate ss e
+   where evals = iterate ss e
+
+eval :: (LamExpr -> LamExpr) -> LamExpr -> LamExpr
+eval ss = fst . head . dropWhile (uncurry (/=)) . reductions ss
+
+trace :: (LamExpr -> LamExpr) -> LamExpr -> [LamExpr]
+trace ss  = (map fst) . takeWhile (uncurry (/=)) .  reductions ss
 
 
-
---evalcbn = eval eval1cbn
---tracecbn = trace eval1cbn
---evalcbv = eval eval1cbv
---tracecbv = trace eval1cbv
 
 lambdaExpr5 = (LamApp (LamAbs 1 (LamAbs 2 (LamVar 1))) (LamVar 3))
 lambdaExpr6 = LamApp lambdaExpr5 (LamApp (LamAbs 4 (LamVar 4)) (LamVar 5))
@@ -357,28 +341,91 @@ lamTest = LamApp (LamApp lamTestSub1 (LamVar 3)) lamTestSub3
 
 -- Challenge 5
 -- compile an arithmetic expression into a lambda calculus equivalent
---TODO: write a parser for this.
+exprS5 :: Parser Int
+exprS5 = do v <- exprV5
+            return v
+         <|>
+         do a <- exprA5
+            return a
+
+exprA5 :: Parser Int
+exprA5 = do symbol "("
+            symbol "+"
+            v <- exprV5
+            symbol ")"
+            return v
+
+exprV5 :: Parser Int
+exprV5 = do symbol "("
+            symbol "+"
+            v1 <- exprV5
+            symbol ")"
+            v2 <- exprV5
+            v' <- exprV5'
+            return (v1 + v2 + v') --TODO: what do i return here ?
+         <|>
+         do n <- nat
+            v' <- exprV5'
+            return (n) --TODO: what do i return here ?
+         <|>
+         do symbol "("
+            v <- exprV5
+            symbol ")"
+            v' <- exprV5'
+            return (v) --TODO: what do i return here ?
+         <|>
+         do symbol "("
+            symbol "+"
+            v1 <- exprV5
+            symbol ")"
+            v2 <- exprV5
+            return (v1 + v2) --TODO: what do i return here ?
+         <|>
+         do n <- nat
+            return n
+         <|>
+         do symbol "("
+            v <- exprV5
+            symbol ")"
+            return v
+
+
+
+exprV5' :: Parser Int
+exprV5' = do v <- exprV5
+             v'<- exprV5'
+             return (v)
+
+
+
 
 compileArith :: String -> Maybe LamExpr
 -- replace the definition below with your solution
-compileArith s = Nothing
+compileArith s = encoding (compileString s)
 
+compileString :: String -> Maybe Int
+compileString str | (snd $ head $ parser str) /= [] = Nothing
+                  | otherwise = Just (fst tuple)
+  where
+    parser =  parse exprS5
+    tuple = head $ parser str
 
-encodding :: Int -> LamExpr
-encodding 0 = (LamAbs 1 (LamAbs 2 (LamVar 2)))
-encodding 1 = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
-encodding n = (LamAbs 1 (LamAbs 2 (genEncodding n)))
+encoding :: Maybe Int -> Maybe LamExpr
+encoding Nothing = Nothing
+encoding (Just 0) = Just (LamAbs 1 (LamAbs 2 (LamVar 2)))
+encoding (Just 1) = Just (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
+encoding (Just n) = Just (LamAbs 1 (LamAbs 2 (genEncoding n)))
 
-genEncodding :: Int -> LamExpr
-genEncodding 0 = LamVar 2
-genEncodding 1 = (LamApp (LamVar 1) (LamVar 2))
-genEncodding n = (LamApp (LamVar 1) (genEncodding (n-1)))
+genEncoding :: Int -> LamExpr
+genEncoding 0 = LamVar 2
+genEncoding 1 = (LamApp (LamVar 1) (LamVar 2))
+genEncoding n = (LamApp (LamVar 1) (genEncoding (n-1)))
 
 --succ1 = (LamAbs 1 (LamAbs 2 (LamAbs 3 (LamApp (LamVar 2) (LamApp (LamApp (LamVar 1) (LamVar 2)) (LamVar 3))))))
 --zero = (LamAbs 1 (LamAbs 2 (LamVar 2)))
 --one = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamVar 2))))
 --two = (LamAbs 1 (LamAbs 2 (LamApp (LamVar 1) (LamApp (LamVar 1) (LamVar 2)))))
---betaEq = (LamApp (encodding 1) succ1)
+--betaEq = (LamApp (encoding 1) succ1)
 --
 --lambdaExpr0 = (LamAbs 1 (LamAbs 2 (LamVar 2)))
 
@@ -386,18 +433,7 @@ qsort [] = []
 qsort (a:as) = qsort left ++ [a] ++ qsort right
   where (left,right) = (filter (<=a) as, filter (>a) as)
 
-eval :: (LamExpr -> LamExpr) -> LamExpr -> LamExpr
-eval ss = fst . head . dropWhile (uncurry (/=)) . reductions ss
 
-trace :: (LamExpr -> LamExpr) -> LamExpr -> [LamExpr]
-trace ss  = (map fst) . takeWhile (uncurry (/=)) .  reductions ss
-
-evalcbn = eval eval1cbn
-tracecbn = trace eval1cbn
-evalcbv = eval eval1cbv
-tracecbv = trace eval1cbv
-
---TODO: finish the reduction then we are done
 --TODO: sorry I forgot about the parser on 5
 
 
