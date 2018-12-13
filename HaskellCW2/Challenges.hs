@@ -93,37 +93,16 @@ convert2String (App expr1 expr2)
 -- (x1 let x2=x3 in x4) x5" is equivalent to "x1 (let x2=x3 in x4) x5
 -- lambda calculus is left associate, convert back to LamdaCalculus to check
 
-
 -- Challenge 3
 -- parse a let expression
---
-----------------------------------------------------------------------------------
-----------------------------------------------------------------------------------
-
--- Initial grammar
---S -> let list e F i F | F
---X -> x
---A -> A A | X
---F -> ( F ) | A
-
-
--- without lieft recursion grammar
--- S -> let list e F i F
---    | F
--- X -> x
--- A -> x A' | x
--- F -> ( F )
---    | x A' |x
---A' -> A A'
-
-----------------------------------------------------------------------------------
-----------------------------------------------------------------------------------
 parseLet :: String -> Maybe Expr
-parseLet s = Just (solveChallenge3 s)
+parseLet s = (solveChallenge3 s)
 
-
-solveChallenge3 :: String -> Expr
-solveChallenge3 input = fst $ head $ parse exprS input
+solveChallenge3 :: String -> Maybe Expr
+solveChallenge3 input | length parseResult >0 = Just (fst $ head parseResult)
+                      | otherwise = Nothing
+  where
+    parseResult = parse exprC input
 
 
 token :: Parser a -> Parser a
@@ -145,62 +124,28 @@ var = do symbol "x"
          n <- nat
          return (Var n)
 
+factor :: Parser Expr
+factor = do symbol "("
+            e <- exprX
+            symbol ")"
+            return e
+          <|> exprX
 
-exprX' :: Parser Expr
-exprX' = do symbol "x"
-            n <- nat
-            symbol "x"
-            o <- nat
-            return (App (Var n) (Var o))
+
+exprX :: Parser Expr
+exprX = do symbol "x"
+           n <- nat
+           symbol "x"
+           m <- nat
+           return (App (Var n) (Var m))
          <|>
-         do symbol "x"
-            n <- nat
-            return (Var n)
-
-exprS :: Parser Expr
-exprS = do symbol "let"
-           a <- exprApp
-           let l = prettyPrint a
-           let list = getIntList(l,[])
-           symbol "="
-           do f1 <- exprF
-              symbol "in"
-              do f2 <- exprF
-                 return (Let list f1 f2)
-        <|>
-        do f <- exprF
-           return f
+          do symbol "x"
+             n <- nat
+             return (Var n)
 
 
 exprA :: Parser Expr
-exprA = do x <- exprX'
-           a' <- exprA'
-           return (App x a')
-        <|>
-        do x <- exprX'
-           return x
-
-
-exprF :: Parser Expr
-exprF = do symbol "("
-           a <- exprA
-           symbol ")"
-           return a
-        <|>
-        do x <- exprX'
-           a' <- exprA'
-           return (App x a')
-        <|>
-        do x <- exprX'
-           return x
-
-exprA' :: Parser Expr
-exprA' = do a <- exprA
-            a' <- exprA'
-            return (App a a')
-
-exprApp :: Parser Expr
-exprApp = do
+exprA = do
   x <- factor
   do e <- exprA
      return (App x e)
@@ -208,28 +153,39 @@ exprApp = do
   do x <- factor
      return x
 
--- the way to implement it is to make App ::= SubExpr Expr, where SubExpr is the same as Expr but without the App
---TODO: fix the parseLet"x1 (x2 x3)" - exprA suppose to deal with this but not sure what happens ?
-exprList :: Parser Expr
-exprList = do
-  x <- factor
-  do e <- exprList
-     return (App x e)
-  <|>
-  do x <- factor
-     return x
-
-factor :: Parser Expr
-factor = do symbol "("
-            e <- exprX'
-            symbol ")"
-            return e
-          <|> exprX'
+exprL :: Parser Expr
+exprL = do symbol "let"
+           a <- exprA
+           let l = prettyPrint a
+           let list = getIntList(l,[])
+           symbol "="
+           do c1 <- exprC
+              symbol "in"
+              do c2 <- exprC
+                 return (Let list c1 c2)
 
 
 
 
 
+exprC :: Parser Expr
+exprC = do a <- exprA
+           return a
+    <|> do l <- exprL
+           return l
+
+--exprD :: Parser Expr
+--exprD = do symbol "x"
+--           n <- nat
+--           return (Var n)
+--
+--exprE :: Parser [Expr]
+--exprE = do d <- exprD
+--           do e <- exprE
+--              return e
+--           <|>
+--           do x <- factor
+--              return x
 
 getInt :: Expr -> [Int]
 getInt (Var x) = [x]
@@ -239,17 +195,13 @@ getIntList :: (String, [Int]) -> [Int]
 getIntList (input, list) | str == "" = append list num
                          | otherwise = getIntList (str, append list num)
  where
-  temp = parse exprX' input
+  temp = parse exprX input
   str =  snd $ head temp
   num = getInt $ fst (head temp)
   --buffer = parse exprA str
 
--- combine 2 [Int] list in correct order
---e.g append [1,2] [3,4] = [1,2,3,4]
 append :: [Int] -> [Int] -> [Int]
 append xs ys = foldr (\x y -> x:y) ys xs
-
-
 
 -- Challenge 4
 -- count reductions using two different strategies
